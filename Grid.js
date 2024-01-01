@@ -160,6 +160,7 @@ class Grid {
       for (var x = 0; x < this._columns; x++) {
         for (var y = 0; y < this._rows; y++) {
           this._slots[x][y].removeItem();
+          this._slots[x][y].isFixed = false;
         }
       }
     }

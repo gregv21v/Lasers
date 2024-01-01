@@ -32,7 +32,7 @@ class Game {
             () => {
                 self._nextBtn.disable();
                 // switch the level
-                self._currentLevel = (self._currentLevel + 1) % self._levels.length;
+                self._currentLevel = self._currentLevel + 1;
                 self.initCurrentLevel();
                 self.render();
 
@@ -109,6 +109,7 @@ class Game {
         let slot = this._toolbar.findSlotContainingPoint(point);
         slot = (slot) ? slot : this._grid.findSlotContainingPoint(point); 
 
+        console.log(slot);
         if(slot)
             if(!this._player.hand && !slot.isFixed) {    
                 this._player.hand = slot.item;

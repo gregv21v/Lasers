@@ -1,7 +1,5 @@
 
 class Mirror extends GameObject {
-  static Size = 30;
-
   /**
     constructor()
     @description constructs the block

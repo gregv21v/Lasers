@@ -9,6 +9,7 @@ class Level1 extends Level {
 
         var mirror = new Mirror({x: 0, y: 0});
         var beam = new Emitter({x: 0, y: 0});
+        var beamSplitter = new BeamSplitter({x: 0, y: 0});
         this._targets.push(new Target({x: 0, y: 0}));
 
         var emitterSlot = this._grid.getSlotAt(3, 3);
@@ -20,5 +21,6 @@ class Level1 extends Level {
         targetSlot.addItem(this._targets[0]);
 
         this._toolbar.add(mirror);
+        this._toolbar.add(beamSplitter);
     }
 }

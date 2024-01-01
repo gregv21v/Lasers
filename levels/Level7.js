@@ -7,7 +7,6 @@ class Level7 extends Level {
     init(grid, toolbar) {
         super.init(grid, toolbar);
 
-        var mirror = new Mirror({x: 0, y: 0});
         var mirror1 = new Mirror({x: 0, y: 0});
         var mirror2 = new Mirror({x: 0, y: 0});
         var beam = new Emitter({x: 0, y: 0});

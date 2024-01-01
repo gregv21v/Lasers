@@ -61,6 +61,10 @@ class Emitter extends GameObject {
 
   rotate(angle) {
     this._rotation = angle;
+    this._path = rotatePoints(this._path, angle, {
+      x: this._position.x + GameObject.Size / 2,
+      y: this._position.y + GameObject.Size / 2
+    })
   }
 
   /**
