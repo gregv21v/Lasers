@@ -14,9 +14,6 @@ class GameObject {
     this._position = position;
     this._activated = false;
     this._rotationToggle = false;
-    this._hasBeam = false;
-    this._inDirection = "";
-    this._needsUpdate = false;
     this._stateChanged = false;
   }
 
@@ -115,7 +112,7 @@ class GameObject {
   }
   
   rotate(angle) {
-    this._rotation = angle;
+    this._rotation += angle;
   }
 
   /**

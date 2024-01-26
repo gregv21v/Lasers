@@ -112,10 +112,7 @@ class Mirror extends GameObject {
    */
   updateDirection(direction) {
 
-    let tempRotation = this._rotation;
-    while(tempRotation < 0) {
-      tempRotation += 360;
-    }
+    while(this._rotation < 0) this._rotation += 360;
 
     const directionMap = {
         0: { right: "down", up: "left", down: "stop", left: "stop"},
@@ -124,7 +121,7 @@ class Mirror extends GameObject {
         270: { up: "right", left: "down", down: "stop", right: "stop"}
     };
 
-    return directionMap[(tempRotation % 360)][direction] || "stop";
+    return directionMap[(this._rotation % 360)][direction] || "stop";
   }
 
   /**

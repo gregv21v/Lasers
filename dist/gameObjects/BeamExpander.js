@@ -7,6 +7,7 @@ class BeamExpander extends GameObject {
   */
   constructor(position = {x: 0, y: 0}) {
     super(position);
+    this._rotation = 0;
   }
 
   /**
@@ -25,15 +26,75 @@ class BeamExpander extends GameObject {
   updateNode(grid, node) {
     node.width += 1;
     let nextPoint = grid.getNextSlot(node.point, node.direction);
-    if(grid.pointInGrid(nextPoint)) {
+    let nextDirection = this.updateDirection(node.direction);
+    if(grid.pointInGrid(nextPoint) && nextDirection !== "stop") {
       return {
         ...node,
+        direction: this.updateDirection(node.direction),
         point: nextPoint,
         width: node.width,
         children: []
       }
+    } else {
+      return null;
     }
     
+  }
+
+  /**
+   * updateDirection()
+   * @description updates the direction of the laser
+   * @param {direction} direction the current direction of the laser  
+   * @returns the new direction of the laser
+   */
+  updateDirection(direction) {
+
+    while(this._rotation < 0) this._rotation += 360;
+
+    const directionMap = {
+        0: { right: "right"},
+        90: { down: "down"},
+        180: { left: "left"},
+        270: { up: "up"}
+    };
+
+    return directionMap[(this._rotation % 360)][direction] || "stop";
+  }
+
+  _createPath() {
+    this._path = [];
+
+    let width = 20;
+    let height = 5;
+    let extraHeight = 5;
+
+    let startX = this._position.x + GameObject.Size / 2 - width / 2;
+    let startY = this._position.y + GameObject.Size / 2 - height / 2;
+  
+    // top left 
+    this._path.push({
+      x: startX, 
+      y: startY
+    });
+
+    // top right
+    this._path.push({
+      x: startX + width, 
+      y: startY - extraHeight
+    });
+
+    // bottom right
+    this._path.push({
+      x: startX + width, 
+      y: startY + height + extraHeight
+    });
+
+    // bottom left
+    this._path.push({
+      x: startX, 
+      y: startY + height
+    });
+
   }
 
   /**
@@ -41,63 +102,17 @@ class BeamExpander extends GameObject {
     @description initialize the values for the svg
   */
   render(context) {
-    let smallerRadius = GameObject.Size / 6;
-    let largerRadius = GameObject.Size / 4;
-    let xOffset = 5;
-
-    context.beginPath();
-    context.ellipse(
-      this._position.x + GameObject.Size / 2 + xOffset, 
-      this._position.y + GameObject.Size / 2,
-      3, largerRadius, 0, 0, Math.PI * 2
-    );
-    context.closePath();
-
-    context.fillStyle = "rgba(255, 255, 255, 0.5)";
-    context.fill();
-
-    context.strokeStyle = "black";
-    context.stroke();
-
-    context.beginPath();
-    context.ellipse(
-      this._position.x + GameObject.Size / 2 - 10 + xOffset, 
-      this._position.y + GameObject.Size / 2,
-      3, smallerRadius, 0, Math.PI / 2, -Math.PI / 2
-    );
-    context.closePath();
-
-    context.fillStyle = "rgba(255, 255, 255, 0.5)";
-    context.fill();
-
-    context.strokeStyle = "black";
-    context.stroke();
-
-
+    this._createPath();
+    this._applyRotation(this._rotation);
+    
     context.beginPath();
     context.moveTo(
-      this._position.x + GameObject.Size / 2 - 10 + xOffset,
-      this._position.y + GameObject.Size / 2 + smallerRadius
+      this._path[0].x, this._path[0].y
     )
-
-    context.lineTo(
-      this._position.x + GameObject.Size / 2 + xOffset,
-      this._position.y + GameObject.Size / 2 + largerRadius
-    )
-
-    context.strokeStyle = "black";
-    context.stroke();
-
-    context.beginPath();
-    context.moveTo(
-      this._position.x + GameObject.Size / 2 - 10 + xOffset,
-      this._position.y + GameObject.Size / 2 - smallerRadius
-    )
-
-    context.lineTo(
-      this._position.x + GameObject.Size / 2 + xOffset,
-      this._position.y + GameObject.Size / 2 - largerRadius
-    )
+    for (const point of this._path) {
+      context.lineTo(point.x, point.y);
+    }
+    context.closePath();
 
     context.strokeStyle = "black";
     context.stroke();

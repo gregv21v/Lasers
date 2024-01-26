@@ -18,13 +18,18 @@ class Emitter extends GameObject {
    * @returns the next node for the beam
    */
   updateNode(grid, node) {
-    return {
-      ...node,
-      point: grid.getNextSlot(node.point, this.direction),
-      color: "red",
-      width: 1,
-      direction: this.direction,
-      children: []
+    let nextPoint = grid.getNextSlot(node.point, this.direction);
+    if(grid.pointInGrid(nextPoint)) {
+      return {
+        ...node,
+        point: nextPoint,
+        color: "red",
+        width: 1,
+        direction: this.direction,
+        children: []
+      }
+    } else {
+      return null;
     }
   }
 
@@ -123,12 +128,15 @@ class Emitter extends GameObject {
 
 
   get direction() {
+
+    while(this._rotation < 0) this._rotation += 360;
+
     return {
       0: "right",
       90: "down",
       180: "left",
       270: "up"
-    }[this._rotation];
+    }[this._rotation % 360];
   }
   
 
