@@ -33,6 +33,9 @@ class Button {
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillText(this._text, this._position.x + this._width / 2, this._position.y + this._height / 2);
+
+        context.strokeStyle = "black";
+        context.strokeRect(this._position.x, this._position.y, this._width, this._height);
     }
 
 

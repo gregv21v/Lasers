@@ -7,7 +7,7 @@ class Level4 extends Level {
     init(grid, toolbar) {
         super.init(grid, toolbar);
 
-        var lens = new Lens({x: 0, y: 0})
+        var beamExpander = new BeamExpander({x: 0, y: 0})
         var beam = new Emitter({x: 0, y: 0});
         this._targets.push(new Target({x: 0, y: 0}));
 
@@ -21,7 +21,7 @@ class Level4 extends Level {
         targetSlot.isFixed = true;
         targetSlot.addItem(this._targets[0]);
 
-        this._toolbar.add(lens);
+        this._toolbar.add(beamExpander);
     }
 
 }

@@ -1,163 +1,145 @@
+/**
+ * Game - the game to be created
+ */
 class Game {
-    constructor(context, canvas) {
-        this._context = context;
-        this._canvas = canvas;
-        var self = this;
+    /**
+     * constructor()
+     * @description constructs the game 
+     */
+    constructor() {
+        this._canvas = document.querySelector("canvas");
+        this._canvas.width = window.innerWidth;
+        this._canvas.height = window.innerHeight;
+        this._context = this._canvas.getContext("2d");
+        this._width = this._canvas.width;
+        this._height = this._canvas.height;
         this._player = new Player();
-        this._manager = {}
 
-        this._levels = [
-            new Level1(), new Level2(), new Level3(),
-            new Level4(), new Level5(), new Level6(),
-            new Level7()
-        ];
-        this._currentLevel = 0;
 
-        var gridPosition = {
-            x: canvas.width / 2 - (10 * Slot.Size) / 2,
-            y: canvas.height / 2 - (10 * Slot.Size) / 2 - Slot.Size
+        this._scenes = {
+            Welcome: new WelcomeScene(this),
+            Tutorial: new TutorialScene(this),
+            Play: new PlayScene(this),
+            Creative: new CreativeScene(this),
+            Win: new WinScene(this)
         }
-        var toolbarPosition = {
-            x: canvas.width / 2 - (10 * Slot.Size) / 2,
-            y: canvas.height / 2 + (10 * Slot.Size) / 2
-        }
+        this.goToScene("Welcome");
 
+        let self = this;
+        window.addEventListener('keydown', (event) => {
+            self.currentScene.onKeyDown(event)
+        });
 
-        this._grid = new Grid(gridPosition, this._player, this._manager, 10, 10);
-        this._toolbar = new Toolbar(toolbarPosition, this._player, this._manager);
-        this._nextBtn = new Button(
-            {x: toolbarPosition.x + Slot.Size * 10, y: toolbarPosition.y},
-            100, 40,
-            "Next",
-            () => {
-                self._nextBtn.disable();
-                // switch the level
-                self._currentLevel = self._currentLevel + 1;
-                self.initCurrentLevel();
-                self.render();
+        window.addEventListener('keyup', (event) => {
+            self.currentScene.onKeyUp(event)
+        });
 
-                if(self._currentLevel === self._levels.length - 1) 
-                    self._nextBtn.text = ""
-            }
-        )
+        this._canvas.addEventListener('mousedown', (event) => {
+            self.currentScene.onMouseDown(event)
+        });
 
-        this._nextBtn.disable();
+        this._canvas.addEventListener('mousemove', (event) => {
+            self.currentScene.onMouseMove(event)
+        });
 
-        canvas.addEventListener("mousedown", (event) => {
-            self.onMouseDown(event);
-        })
-
-        canvas.addEventListener("mousemove", (event) => {
-            self.onMouseMove(event);
+        this._canvas.addEventListener('mouseup', (event) => {
+            self.currentScene.onMouseUp(event)
+        });
+  
+        this._canvas.addEventListener('click', (event) => {
+            self.currentScene.onMouseClick(event)
         });
     }
 
-    
-    getMousePosition(event) {
-        return {
-            x: event.clientX,
-            y: event.clientY
+
+    /** 
+     * setupCurrentScene() 
+     * @description sets the current scene up
+     */
+    setupCurrentScene() {
+        console.log("Setup Scene: ", this._currentSceneName);
+        this.currentScene.init();
+        this.currentScene.render();
+    }
+
+
+    /**
+     * goToScene()
+     * @description goes to a particular scene
+     * @param {String} name the name of the scene
+     */
+    goToScene(name) { 
+        if(this._currentSceneName !== name) {
+            if(this.currentScene)
+                this.currentScene.destroy();
+            this._currentSceneName = name;
+            this.setupCurrentScene();
         }
     }
 
-    
-    allTargetsActive() {
-        let targets = this._levels[this._currentLevel].targets;
-
-        if(targets.length === 0) return false;
-
-        for (const target of targets) {
-            console.log(target.isActivated());
-            console.log(target);
-            if(!target.isActivated()) {
-                return false;
-            }
-        }
-        return true;
+    /**
+     * getScene()
+     * @description gets a particular scene by name
+     * @param {String} name the name of the scene to get
+     * @returns the scene with the given name
+     */
+    getScene(name) {
+        return this._scenes[name];
     }
 
-    initCurrentLevel() {
-        this._levels[this._currentLevel].init(this._grid, this._toolbar);
-    }
-
-    render() {
-        this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-
-        context.font = "15px Arial";
-        context.fillStyle = "black";
-        context.textAlign = "left";
-        context.textBaseline = "top";
-        this._context.fillText("Level: " + (this._currentLevel + 1), 25, 25)
-
-        this._levels[this._currentLevel].render(this._context);
-
-        this._grid.render(this._context);
-        this._toolbar.render(this._context);
-
-        this._nextBtn.render(this._context);
-
-        this._levels[this._currentLevel].targets.forEach((target) => {
-            target.deactivate();
-        });
-        this._grid.projectLaser(this._context);
+    /**
+     * get player()
+     * @description gets a the player playing the game
+     * @returns {Player} the player
+     */
+    get player() {
+        return this._player;
     }
 
 
-    onMouseDown(event) {
-        // find the clicked game object
-        let point = this.getMousePosition(event);
-        let slot = this._toolbar.findSlotContainingPoint(point);
-        slot = (slot) ? slot : this._grid.findSlotContainingPoint(point); 
+    /**
+     * get canvas()
+     * @description gets the canvas
+     * @returns {Canvas} the canvas
+     */
+    get canvas() {
+        return this._canvas;
+    }
 
-        console.log(slot);
-        if(slot)
-            if(!this._player.hand && !slot.isFixed) {    
-                this._player.hand = slot.item;
-                slot.removeItem();
-            } else if(slot.isEmpty()) {
-                slot.addItem(this._player.hand);
-                this._player.hand = null;
-            }
-
-        this._levels[this._currentLevel].targets.forEach((target) => {
-            target.deactivate();
-        });
-        this._grid.projectLaser(this._context);
-
-        this._nextBtn.onClick(point);
-
-        if(this.allTargetsActive()) {
-            this._nextBtn.enable();
-            if(this._currentLevel === this._levels.length - 1) 
-                this._nextBtn.text = "You Win!!";
-
-        }
+    /**
+     * get context()
+     * @description gets the 2d context of the game
+     * @returns {CanvasRenderingContext2D} the 2d context of the game
+     */
+    get context() {
+        return this._context;
     }
 
 
-    onMouseMove(event) {
-        this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-
-        this.render(this._context);
-
-        if(this._player.hand) {
-            this._player.hand.position = {
-                x: event.clientX - GameObject.Size / 2,
-                y: event.clientY - GameObject.Size / 2
-            };
-            this._player.hand.render(this._context);
-        }
+    /**
+     * getCurrentScene()
+     * @description gets the current scene
+     */
+    get currentScene() {
+        return this._scenes[this._currentSceneName];
+    }
 
 
-        this._context.beginPath();
-        this._context.ellipse(
-            event.clientX, 
-            event.clientY,
-            2, 2, 0,
-            0, Math.PI * 2
-        )
-        this._context.closePath();
-        this._context.fillStyle = "red";
-        this._context.fill();
+    /**
+     * get width()
+     * @description gets the width of the game 
+     * @returns {Number} the width of the game
+     */
+    get width() {
+        return this._width;
+    }
+
+    /**
+     * get height()
+     * @description gets the height of the game
+     * @returns {Number} the height of game
+     */
+    get height() {
+        return this._height;
     }
 }

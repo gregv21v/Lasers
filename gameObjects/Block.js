@@ -10,6 +10,18 @@ class Block extends GameObject {
     constructor(position = {x: 0, y: 0}) {
       super(position);
     }
+
+    /**
+     * clone()
+     * @description clones the Block
+     * @returns {Block} a clone of the Block
+     */
+    clone() {
+      let newBlock = new Block();
+      newBlock._position = this._position;
+
+      return newBlock;
+    }
   
     /**
       render()
@@ -18,6 +30,21 @@ class Block extends GameObject {
     render(context) {
       context.fillStyle = "black";
       context.fillRect(this._position.x, this._position.y, GameObject.Size, GameObject.Size);
+    }
+
+
+    updateNode(grid, node) {
+      this._needsUpdate = false;
+      return null;
+    }
+
+
+    updateDirection(direction) {
+      return "stop";
+    }
+
+    reverseDirection(direction) {
+      return 
     }
 }
   

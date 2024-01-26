@@ -5,6 +5,7 @@ class Level {
      */
     constructor() {
         this._targets = [];
+        this._rotatorSlots = [];
     }
 
     /**
@@ -19,6 +20,22 @@ class Level {
         this._toolbar.clear();
     }
 
+    /**
+     * eventLoop() 
+     * @description called when the level is clear
+     */
+    eventLoop() {
+        /**
+         * Possible events: 
+         *  Win
+         *  Rotate 
+         *  Activate
+         */
+        let events = []; // the list of events that where triggered
+
+
+    }
+
     render(context) {
         this._grid.render(context);
         this._toolbar.render(context);
@@ -29,5 +46,10 @@ class Level {
 
     get targets() {
         return this._targets;
+    }
+
+
+    get rotatorSlots() {
+        return this._rotatorSlots;
     }
 }

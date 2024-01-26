@@ -21,6 +21,11 @@ class Grid {
       // from one slot to another in the inventory
       this._active = true;
       this._onRightClickEnabled = true;
+      this._emitters = [];
+
+      this._currentLaserMatrix = new Matrix(this._rows, this._columns); // the matrix representing the slots with active lasers in them
+      this._previousLaserMatrix = new Matrix(this._rows, this._columns); // the matrix representing the slots which previously had active lasers in them
+      this._laserWidthMatrix = new Matrix(this._rows, this._columns); // the matrix of the widths of the lasers
 
       this._createSlots();
     }
@@ -53,7 +58,6 @@ class Grid {
      * @param {Direction} direction the direction the laser is going
      */
     getNextSlot(pointer, direction) {
-
       // choose the direction the emitter goes
       // and update the pointer accordingly.
       if(direction === "right") {
@@ -64,12 +68,56 @@ class Grid {
         return {x: pointer.x, y: pointer.y + 1}
       } else if(direction === "up") {
         return {x: pointer.x, y: pointer.y - 1}
+      } else if(direction === "stop") {
+        return {x: pointer.x, y: pointer.y}
       }
     }
 
 
- 
+    /**
+     * getNextDirection()
+     * @description get the next direction the laser will go
+     * @param {Direction} direction the direction the laser is going
+     * @param {Slot} slot the slot the laser is currently in
+     * @return {Direction} the next direction
+     */ 
+    getNextDirection(direction, slot) {
+      if(slot.item) {
+        return slot.item.updateDirection(direction);
+      } else {
+        return direction;
+      }
+    }
+    
+    /**
+     * getAdjacentSlots()
+     * @param {Number} x the x coordinate of the slot 
+     * @param {Number} y the y coordinate of the slot   
+     * @returns all the adjacent slots to the given slot  
+     */
+    getAdjacentSlots(x, y) {
+      let positions = [
+        {x: x - 1, y: y - 1},
+        {x: x - 1, y},
+        {x: x - 1, y: y + 1},
+        {x, y: y + 1},
+        {x: x + 1, y: y + 1},
+        {x: x + 1, y},
+        {x: x + 1, y: y - 1},
+        {x, y: y - 1}
+      ];
 
+      let slots = [];
+
+      for (const pos of positions) {
+        if(this.pointInGrid(pos)) {
+          slots.push(this.getSlotAt(pos.x, pos.y))
+        }
+      }
+
+
+      return slots;
+    }
 
     /**
      * @description checks if a given point is in the grid
@@ -81,86 +129,228 @@ class Grid {
       )
     }
 
+    
+
+   
 
     /**
      * @description emmits a beam from a point 
      */
-    emitBeam(emitter, direction, color) {
+    emitBeam(startNode) {
 
-      context.lineWidth = 1;
-      context.beginPath();
-      
-      let currentSlot = this._slots[emitter.x][emitter.y]; // get the current slot the emitter is in
-      context.moveTo(currentSlot.center.x, currentSlot.center.y); // move the laser start position to the beam emitter
-      let currentDirection = direction; // the emitters current direction
-      let pointer = {...emitter}; // the current position of the end of the beam
-      let laserSize = 1;
-      while(this.pointInGrid(this.getNextSlot(pointer, currentDirection))) {
+      // store the path that the beam makes so that it can be updated later.
+      // each node of the path is setup like follows:
+      // {
+      //    point: the position of this node 
+      //    direction: the direction this node will go 
+      //    color: the color of the line protruding from this node
+      //    width: the width of the line protruding from this node
+      //    children: the children of this node
+      // }
 
-        // update the direction of the laser based on the current block
-        currentDirection = (currentSlot.item) ? currentSlot.item.updateDirection(currentDirection) : currentDirection
-        pointer = this.getNextSlot(pointer, currentDirection);
-        currentSlot = this._slots[pointer.x][pointer.y]; // set current slot
-        context.lineTo(currentSlot.center.x, currentSlot.center.y); // draw a line to the current slot
+      // base case 
+      if(startNode === null) {
+        return null;
+      }
+
+      let slot = this._slots[startNode.point.x][startNode.point.y]; // get the current slot the emitter is in
+
+      // other cases
+      // if the slot contains an item
+      if(slot && slot.item && !(slot.item instanceof Emitter)) {
+        //slot.item.inDirection = startNode.direction; // set the in direction
+        
+        let children = slot.item.updateNode(this, startNode);
 
         
-
-        if(currentSlot.item instanceof Target) {
-          if(currentSlot.item.requiredLaserSize === laserSize) {
-            currentSlot.item.activate();
-          }
-          break; 
-        } else if(currentSlot.item instanceof Lens) {
-          context.strokeStyle = color;
-          context.stroke()
-          context.beginPath();
-          context.moveTo(currentSlot.center.x, currentSlot.center.y);
-          laserSize++;
-          context.lineWidth = laserSize;
-        } else if(currentSlot.item instanceof Block) {
-          break;
-        } else if(currentSlot.item instanceof BeamSplitter) {
-          context.strokeStyle = color;
-          context.stroke()
-          for (const direction of currentSlot.item.getDirections(currentDirection)) {
-            this.emitBeam(pointer, direction, "red");
-          }
-
-          context.beginPath();
-          break;  
+        if(children) { 
+          startNode.children = startNode.children.concat(children);
         }
 
-      } 
-      context.strokeStyle = color;
-      context.stroke()
+        for (const child of startNode.children) {
+          this.emitBeam(child);
+        }
+        
 
-      context.lineWidth = 1;
+      } else {
+        let nextPoint = this.getNextSlot(startNode.point, startNode.direction);
+
+        if(this.pointInGrid(nextPoint)) {
+          let child = {
+            ...startNode,
+            point: {...nextPoint},
+            children: []
+          }
+
+          startNode.children = [child];
+          this.emitBeam(child);
+        } else {
+          startNode.children = [];
+          return startNode;
+        }
+      }
+
+      return startNode;
     }
+
 
 
     /**
      * @description emits a laser from a emitter
      * @param {CanvasRenderingContext2D} context the context to render the laser to  
      */
-    projectLaser(context) {
+    projectAllLasers() {
       let emitters = this.findEmitters(); // finds all the emitters in the grid
+      let rootNodes = [];
 
-      
       for (const emitter of emitters) {
-        var direction = this._slots[emitter.x][emitter.y].item.direction;
-        this.emitBeam(emitter, direction, "red");
+        rootNodes = rootNodes.concat(this.projectLaser(emitter));
+      }
+
+      // if a change is detected,
+      this._previousLaserMatrix = this._currentLaserMatrix;
+      this._currentLaserMatrix = new Matrix(this._rows, this._columns);
+      this._laserWidthMatrix = new Matrix(this._rows, this._columns);
+
+      // update the matrices with the new lasers
+      for (const node of rootNodes) {
+        // update the laser matrices 
+        // only update the previous laser matrix if the state changes 
+        this.updateMatrix(this._currentLaserMatrix, node);
+        this.updateMatrixWidths(this._laserWidthMatrix, node);
+      }
+
+      let xorMatrix = this._currentLaserMatrix.xorWith(this._previousLaserMatrix);
+      
+      for (var x = 0; x < this._columns; x++) {
+        for (var y = 0; y < this._rows; y++) {
+          if(this._slots[x][y].item) {
+            if(xorMatrix.getAt(x, y)) { // if a cell has changed state
+              this._slots[x][y].item.stateChanged = true; 
+              this._slots[x][y].item.toggle();
+            } else { // a cell stayed the same
+              this._slots[x][y].item.stateChanged = false;
+            }
+          }
+
+        }
+      }
+      this.updateSlots();
+      return rootNodes;
+    }
+
+    /**
+     * @description updates the slots
+     */
+    updateSlots() {
+      for (var x = 0; x < this._columns; x++) {
+        for (var y = 0; y < this._rows; y++) {
+          if(this._slots[x][y].item)
+            this._slots[x][y].item.update(this, {x, y});
+        }
       }
     }
 
+
+
+    updateSlot(coordinate) {
+      if(this._currentLaserMatrix.getAt(coordinate.x, coordinate.y)) {
+        this._slots[coordinate.x][coordinate.y].item.stateChanged = true;
+        this._slots[coordinate.x][coordinate.y].item.place();
+        this._slots[coordinate.x][coordinate.y].item.update(this, coordinate);
+      }
+    }
+
+    
+
+
+    /**
+     * @description emits a laser from a emitter
+     * @param {CanvasRenderingContext2D} context the context to render the laser to  
+     */
+    projectLaser(emitter) {
+
+      let slot = this._slots[emitter.x][emitter.y];
+      let direction = slot.item.direction;
+      let root = {
+        point: emitter, 
+        direction,
+        color: "red",
+        width: 1,
+        children: []
+      }
+      this.emitBeam(root);
+
+      return root;
+    }
+
+    /**
+     * updateMatrix()
+     * @description updates the matrix from a root node 
+     * @param {*} matrix 
+     * @param {*} node 
+     */
+    updateMatrix(matrix, node) {
+      matrix.setAt(node.point.x, node.point.y, 1);
+      for (const child of node.children) {
+          matrix.setAt(child.point.x, child.point.y, 1);
+          this.updateMatrix(matrix, child);
+      }
+
+    }
+
+
+    /**
+     * updateMatrixWidths()
+     * @description updates width matrix for the given node
+     * @param {Matrix} matrix the matrix to update
+     * @param {Node} node the node of the laser beam
+     */
+    updateMatrixWidths(matrix, node) {
+      matrix.setAt(node.point.x, node.point.y, node.width);
+      for (const child of node.children) {
+          matrix.setAt(child.point.x, child.point.y, node.width);
+          this.updateMatrixWidths(matrix, child);
+      }
+    }
+
+
+
+
+
+    
+
+
+
+    
     /**
      * @description clears the grid of all items
      * @returns 
      */
     clear() {
+      this._currentLaserMatrix = new Matrix(this._rows, this._columns); // the matrix representing the slots with active lasers in them
+      this._previousLaserMatrix = new Matrix(this._rows, this._columns); // the matrix representing the slots which previously had active lasers in them
+
       for (var x = 0; x < this._columns; x++) {
         for (var y = 0; y < this._rows; y++) {
           this._slots[x][y].removeItem();
           this._slots[x][y].isFixed = false;
+        }
+      }
+    }
+
+
+    /**
+     * reset()
+     * @description resets the grid
+     */
+    reset() {
+      for (var x = 0; x < this._columns; x++) {
+        for (var y = 0; y < this._rows; y++) {
+          let slot = this._slots[x][y];
+          if(slot.item && (slot.item instanceof Target || slot.item instanceof Rotator)) {
+            if(slot.item.isActivated()) slot.item.deactivate();
+          } 
         }
       }
     }
@@ -183,13 +373,6 @@ class Grid {
       return null;
     }
   
-    /**
-     * get allowPickup()
-     * @description gets the allow pickup property
-     */
-    get allowPickup() {
-      return this._allowPickup;
-    }
 
   
     /**
@@ -214,51 +397,9 @@ class Grid {
         this._slots.push(newRow);
       }
     }
-  
-  
-    /********************************************************
-                      JSON Function
-    *********************************************************/
-    /**
-      toJSON()
-      @description converts this storage to its json representation
-    */
-    toJSON() {
-      let storageAsJSON = {
-        columns: this._columns,
-        rows: this._rows,
-        slots: []
-      }
-      for (var x = 0; x < this._columns; x++) {
-        var newRow = []
-        for (var y = 0; y < this._rows; y++) {
-          var newSlot = this._slots[x][y].toJSON()
-          newRow.push(newSlot);
-        }
-        storageAsJSON.slots.push(newRow);
-      }
-      return storageAsJSON;
-    }
-  
-    /**
-      fromJSON()
-      @description convert a json object to a storage object
-    */
-    static fromJSON(player, inventoryManager, json) {
-      let inventory = new Grid(player, inventoryManager, json.rows, json.columns)
-      for (var x = 0; x < inventory._columns; x++) {
-        for (var y = 0; y < inventory._rows; y++) {
-          inventory._slots[x][y].destroyItem()
-          var item = ItemRegistry.itemFromJSON(json.slots[x][y].item);
-          if(item !== null) {
-            inventory._slots[x][y].addItem(
-              item, inventory._svg.layers
-            )
-          }
-        }
-      }
-      return inventory
-    }
+
+
+    
   
     /********************************************************
                       Getters and Setters
@@ -392,94 +533,7 @@ class Grid {
       }
       return false;
     }
-  
-  
-    /**
-     * getAllItemsByName() 
-     * @description gets all the items by a certain name and put them into one stack
-     * @param {string} name the name of the item
-     */
-    getAllItemsByName(name) {
-      let item = ItemRegistry.lookup(name).clone()
-      let self = this;
-      item._svg.clickArea.on("click", (event) => self.itemOnLeftClick(event, item))
-      item.quantity = 0;
-      for (var x = 0; x < this._slots.length; x++) {
-        for (var y = 0; y < this._slots[x].length; y++) {
-          if(this._slots[x][y].item && this._slots[x][y].item.name === name) {
-            item.quantity += this._slots[x][y].item.quantity
-            this._slots[x][y].destroyItem()
-            this.removeItemFromSlot(this._slots[x][y])
-          }
-        }
-      }
-  
-      if(item.quantity === 0)
-        return null;
-      else 
-        return item
-    }
-  
-  
-    /**
-      onClick()
-      @description the function called when this block is clicked
-    */
-    itemOnLeftClick(event, item) {
-      if(this._itemsMovable) {
-  
-        let pos = d3.pointer(event);
-  
-        if(this._player.hand) { // there is something in the hand
-          // place the item in the players hand into the designated slot
-          if(
-            this._inventoryManager.addToContainingSlot({
-              x: pos[0], y: pos[1]
-            }, this._player.hand)
-          ) {
-            //this._player.hand.destroy();
-            this._player.removeItemFromHand();
-            console.log("Slot clicked");
-          } 
-        } else {
-          console.log("Hand empty");
-          this._player.addItemToHand(item)
-        }
-      } 
-    }
-  
-  
-  
-  
-    /**
-     * splitStack()
-     * @description splits the items in a given stack
-     * @param slot the slot that the item stack is in
-     */
-    splitStack(coordinate) {
-      // find the closest empty slot
-      var distance = Math.sqrt(
-        Math.pow(window.innerHeight, 2) + Math.pow(window.innerHeight, 2)
-      ); // size of the window across
-      var closestSlot = null;
-      var item = this._slots[coordinate.x][coordinate.y].item;
-      if(item !== null) {
-        for (var _x = 0; _x < this._columns; _x++) {
-          for (var _y = 0; _y < this._rows; _y++) {
-            var tempDistance = this._slots[_x][_y].distanceTo(item)
-            if((_x !== coordinate.x && _y !== coordinate.y) && tempDistance <= distance) {
-              distance = tempDistance;
-              closestSlot = this._slots[_x][_y];
-            }
-          }
-        }
-      }
-      var tempItem = item.clone()
-      tempItem.quantity = Math.floor(item.quantity/2)
-      item.quantity -= tempItem.quantity
-  
-      this.addItemToSlot(closestSlot, tempItem)
-    }
+
   
     /**
       getClosestSlot()
@@ -531,13 +585,36 @@ class Grid {
       slot.removeItem()
     }
   
+
+    
   
   
     /********************************************************
                       Graphics
     *********************************************************/
   
+    renderLine(context, parent, child) {
+      if(parent && child) {
+        let parentSlot = this.getSlotAt(parent.point.x, parent.point.y);
+        let childSlot = this.getSlotAt(child.point.x, child.point.y);
+        context.beginPath();
+        context.moveTo(parentSlot.center.x, parentSlot.center.y);
+        context.lineTo(childSlot.center.x, childSlot.center.y);
+        context.lineWidth = parent.width;
+        context.strokeStyle = parent.color;
+        context.stroke();
 
+        context.lineWidth = 1;
+      }
+    }
+
+    renderLaserNode(context, node) {
+      for (const child of node.children) {
+        this.renderLine(context, node, child);
+        this.renderLaserNode(context, child);
+      }
+    }
+                  
   
     /**
      * render()
@@ -548,6 +625,10 @@ class Grid {
         for (var y = 0; y < this._rows; y++) {
           this._slots[x][y].render(context)
         }
+      }
+
+      for (const emitter of this._emitters) {
+        this.renderLaserNode(context, emitter);
       }
     }
   
@@ -586,20 +667,6 @@ class Grid {
       this._selectedSlot.select();
     }
   
-    /**
-     * selectSlotByPosition()
-     * @description selects a slot by its position
-     */
-    selectSlotByPosition(x, y) {
-      this.deselectAll();
-  
-      this._selectedSlot = this._slots[x][y];
-      this._selectedSlot.attach(this._svg.layers.slots);
-      if(this._selectedSlot.item) {
-        this._selectedSlot.item.attach(this._svg.layers.items);
-      }
-      this._selectedSlot.select(); 
-    }
   
   
     /**
@@ -613,6 +680,16 @@ class Grid {
 
     getSlotAt(x, y) {
       return this._slots[x][y];
+    }
+
+
+    
+    getLaserWidthAt(x, y) {
+      if(this._laserWidthMatrix) {
+        return this._laserWidthMatrix.getAt(x, y);
+      } else {
+        return 0;
+      }
     }
   }
   

@@ -14,9 +14,24 @@ class Slot {
       this._player = player
       this._onMouse = false;
       this._isFixed = false;
+      this._inDirections = ""; // the direction of the beam coming into this slot
+      this._nodes = [];
+      this._emitters = [];
+    }
+
+
+    /**
+     * @description triggered when the state of slot changes
+     */
+    stateChange() {
+
     }
   
     
+
+    update() {
+      
+    }
   
   
   
@@ -313,6 +328,26 @@ class Slot {
       return this._isFixed;
     }
   
-    
+
+    get coordinate() {
+      return this._coordinate;
+    }
+
+
+    get nodes() {
+      return this._nodes;
+    }
+
+    set nodes(value) {
+      this._nodes = value
+    }
+
+    get emitters() {
+      return this._emitters;
+    }
+
+    set emitters(value) {
+      this._emitters = value
+    }
   }
   

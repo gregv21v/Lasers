@@ -9,6 +9,38 @@ class BeamSplitter extends GameObject {
       this._directions = ["down", "right"]
       
     }
+
+
+    updateNode(grid, node) {
+      return this.getDirections(node.direction).map(direction => {
+        let nextPoint = grid.getNextSlot(node.point, direction)
+
+        if(grid.pointInGrid(nextPoint)) {
+          return {
+            ...node,
+            point: nextPoint,
+            direction, 
+            children: []
+          }
+        } else {
+          return null;
+        }
+      })
+    }
+
+    /**
+     * clone()
+     * @description clones the BeamSplitter
+     * @returns {BeamSplitter} a clone of the BeamSplitter
+     */
+    clone() {
+      let newBeamSplitter = new BeamSplitter();
+      newBeamSplitter._position = this._position;
+      newBeamSplitter._direction = this._direction; 
+      newBeamSplitter._rotation = this._rotation;
+
+      return newBeamSplitter;
+    }
   
     _createPath() {
         this._path = [];
@@ -41,7 +73,7 @@ class BeamSplitter extends GameObject {
      * @param {angle} angle the angle of rotation
      */
     rotate(angle) {
-      this._rotation = 45 + angle;
+      this._rotation += angle;
     }
   
     /**
@@ -67,6 +99,12 @@ class BeamSplitter extends GameObject {
       context.fillStyle = "grey";
       context.stroke();
       context.fill();
+
+      context.textBaseline = "middle";
+      context.textAlign = "center";
+      context.fillStyle = "black";
+      context.fillText(this._rotation, this._position.x + GameObject.Size / 2, this._position.y + GameObject.Size / 2)
+
     }
   
     getDirections(inputDirection) {

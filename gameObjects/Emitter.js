@@ -6,7 +6,45 @@ class Emitter extends GameObject {
   constructor(position = {x: 0, y: 0}) {
     super(position);
     this._rotation = 0;
+    this._color = "red";
     
+  }
+
+  /**
+   * updateNode()
+   * @description updates the emitter node
+   * @param {Grid} grid the grid this game object is in
+   * @param {Node} node the node of the emitter, should just contain a point
+   * @returns the next node for the beam
+   */
+  updateNode(grid, node) {
+    let nextPoint = grid.getNextSlot(node.point, this.direction);
+    if(grid.pointInGrid(nextPoint)) {
+      return {
+        ...node,
+        point: nextPoint,
+        color: "red",
+        width: 1,
+        direction: this.direction,
+        children: []
+      }
+    } else {
+      return null;
+    }
+  }
+
+
+  /**
+     * clone()
+     * @description clones the Emitter
+     * @returns {Emitter} a clone of the Emitter
+     */
+  clone() {
+    let newEmitter = new Emitter();
+    newEmitter._rotation = this._rotation;
+    newEmitter._position = this._position;
+
+    return newEmitter;
   }
 
   _createPath() {
@@ -60,11 +98,7 @@ class Emitter extends GameObject {
 
 
   rotate(angle) {
-    this._rotation = angle;
-    this._path = rotatePoints(this._path, angle, {
-      x: this._position.x + GameObject.Size / 2,
-      y: this._position.y + GameObject.Size / 2
-    })
+    this._rotation += (angle % 360);
   }
 
   /**
@@ -94,13 +128,19 @@ class Emitter extends GameObject {
 
 
   get direction() {
+
+    while(this._rotation < 0) this._rotation += 360;
+
     return {
       0: "right",
       90: "down",
       180: "left",
       270: "up"
-    }[this._rotation];
+    }[this._rotation % 360];
   }
   
+
+
+
 
 }

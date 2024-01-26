@@ -11,6 +11,20 @@ class Target extends GameObject {
       this._activated = false;
       this._requiredLaserSize = 1;
     }
+
+    /**
+     * clone()
+     * @description clones the target
+     * @returns {Target} a clone of the Target
+     */
+    clone() {
+      let newTarget = new Target();
+      newTarget._activated = this._activated;
+      newTarget._requiredLaserSize = this._requiredLaserSize;
+      newTarget._position = this._position;
+
+      return newTarget;
+    }
   
     /**
       render()
@@ -47,27 +61,22 @@ class Target extends GameObject {
       context.strokeStyle = (this._activated) ? "red" : "black";
       context.stroke();
     }
-  
 
-    /**
-     * @description true if the target is active
-     */
-    isActivated() {
-      return this._activated;
+    update(grid, pointer) {
+      if(grid.getLaserWidthAt(pointer.x, pointer.y) === this._requiredLaserSize) {
+        this.activate();
+      } else {
+        this.deactivate();
+      }
     }
 
-    /**
-     * @description activates the target
-     */
-    activate() {
-      this._activated = true;
+    updateNode(grid, node) {
+      return null;
     }
 
-    /**
-     * @description deactivates the target
-     */
-    deactivate() {
-      this._activated = false;
+
+    updateDirection(direction) {
+      return "stop";
     }
     
 

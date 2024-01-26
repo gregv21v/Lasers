@@ -13,23 +13,42 @@
     </style>
 </head>
 <body>
-    <canvas width="600" height="600"></canvas>
+    <canvas id="stage"></canvas>
+
+    <script src="lib/CreateJS 1.0.1/createjs.min.js"></script>
+    <script src="lib/phaser.min.js"></script>
+    <script src="Matrix.js"></script>
+
+    <!--GUI-->
     <script src="gui/Button.js"></script>
+    <script src="gui/MultiLineText.js"></script>
 
     <script src="util.js"></script>
 
+    <!--Animations-->
+    <script src="animations/Firework.js"></script>
+
+    <!--GameObjects-->
     <script src="gameObjects/GameObject.js"></script>
     <script src="gameObjects/Block.js"></script>
     <script src="gameObjects/Mirror.js"></script>
-    <script src="gameObjects/Lens.js"></script>
+    <script src="gameObjects/BeamExpander.js"></script>
     <script src="gameObjects/Emitter.js"></script>
     <script src="gameObjects/BeamSplitter.js"></script>
+    <script src="gameObjects/Rotator.js"></script>
+    <script src="gameObjects/TimerObject.js"></script>
     <script src="gameObjects/Target.js"></script>
 
-    <script src="Slot.js"></script>
-    <script src="Grid.js"></script>
-    <script src="Toolbar.js"></script>
 
+    <script src="Slot.js"></script>
+    <script src="InfiniteSlot.js"></script>
+    <script src="Grid.js"></script>
+    <script src="InfiniteGrid.js"></script>
+    <script src="InfiniteToolbar.js"></script>
+    <script src="Toolbar.js"></script>
+    <script src="GridManager.js"></script>
+
+    <!--Levels-->
     <script src="levels/Level.js"></script>
     <script src="levels/Level1.js"></script>
     <script src="levels/Level2.js"></script>
@@ -38,6 +57,17 @@
     <script src="levels/Level5.js"></script>
     <script src="levels/Level6.js"></script>
     <script src="levels/Level7.js"></script>
+    <script src="levels/CreativeLevel.js"></script>
+
+    <!--Scenes-->
+    <script src="scenes/Scene.js"></script>
+    <script src="scenes/PlayableScene.js"></script>
+    <script src="scenes/CreativeScene.js"></script>
+    <script src="scenes/PlayScene.js"></script>
+    <script src="scenes/WelcomeScene.js"></script>
+    <script src="scenes/TutorialScene.js"></script>
+    <script src="scenes/WinScene.js"></script>
+
 
     <script src="Player.js"></script>
     <script src="Game.js"></script>
