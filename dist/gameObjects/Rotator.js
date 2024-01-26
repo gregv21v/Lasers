@@ -10,6 +10,10 @@ class Rotator extends GameObject {
 
       this._activated = false;
       this._requiredLaserSize = 1;
+      this._currentTime = 0;
+      this._endTime = 200;
+      this._pulseLength = this._endTime / 2;
+      this._hasBeenRotated = false;
     }
 
     /**
@@ -128,28 +132,60 @@ class Rotator extends GameObject {
     
       
     }
+
+
+    rotateAdjacencies(grid, pointer, degrees) {
+      // rotate adjacent Game objects by 90 deg 
+      for (const slot of grid.getAdjacentSlots(pointer.x, pointer.y)) {
+        if(slot && slot.item) {
+          slot.item.rotate(degrees)
+        }
+      }
+    }
   
 
     /**
-     * @description true if the target is active
+     * place()
+     * @description places a rotator game object
+     * @param {Grid} grid the grid that the Rotator is placed on
+     * @param {Point} pointer the point the Rotator is placed at 
      */
-    isActivated() {
-      return this._activated;
+    place(grid, pointer) {
+      this.activate();
     }
 
     /**
-     * @description activates the target
+     * update()
+     * @description updates the rotator 
+     * @param {Grid} grid the grid that this rotator is on
+     * @param {Point} pointer the location on the grid of the rotator
      */
-    activate() {
-      this._activated = true;
+    update(grid, pointer) {
+      if(this._stateChanged) {
+        //console.log("state changed", this._activated);
+        if(this._activated) {
+          this.rotateAdjacencies(grid, pointer, 90);
+        } else {
+          this.rotateAdjacencies(grid, pointer, -90);
+        }
+      } 
     }
 
-    /**
-     * @description deactivates the target
-     */
-    deactivate() {
-      this._activated = false;
+    updateNode(grid, node) {
+      let point = grid.getNextSlot(node.point, node.direction)
+      if(grid.pointInGrid(point)) {
+        return {
+          ...node,
+          point,
+          children: []
+        };
+      } else {
+        return null;
+      }    
+      
     }
+
+    
     
 
     /**

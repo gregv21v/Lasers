@@ -41,6 +41,22 @@ class Mirror extends GameObject {
       y: this._position.y + GameObject.Size
     });
   }
+
+  updateNode(grid, node) {
+    let nextDirection = this.updateDirection(node.direction);
+    let nextPoint = grid.getNextSlot(node.point, nextDirection);
+
+    if(!grid.pointInGrid(nextPoint) || nextDirection === "stop") {
+      return null;
+    } else {
+      return {
+        ...node,
+        direction: nextDirection,
+        point: nextPoint,
+        children: []
+      }
+    }
+  }
   
   rotate(angle) {
     this._rotation += angle;
@@ -81,14 +97,12 @@ class Mirror extends GameObject {
     context.strokeStyle = "black";
     context.stroke();
 
-    context.textBaseline = "middle";
-    context.textAlign = "center";
-    context.fillStyle = "black";
-    context.fillText(this._rotation, this._position.x + GameObject.Size / 2, this._position.y + GameObject.Size / 2)
+    //context.textBaseline = "middle";
+    //context.textAlign = "center";
+    //context.fillStyle = "black";
+    //context.fillText(this._rotation, this._position.x + GameObject.Size / 2, this._position.y + GameObject.Size / 2)
 
   }
-
-
 
   /**
    * updateDirection()
@@ -97,16 +111,39 @@ class Mirror extends GameObject {
    * @returns the new direction of the laser
    */
   updateDirection(direction) {
+
+    let tempRotation = this._rotation;
+    while(tempRotation < 0) {
+      tempRotation += 360;
+    }
+
     const directionMap = {
-        0: { right: "down", up: "left", left: "stop", down: "stop"},
-        90: { down: "left", right: "up", left: "stop", up: "stop"},
+        0: { right: "down", up: "left", down: "stop", left: "stop"},
+        90: { down: "left", right: "up", up: "stop", left: "stop" },
         180: { down: "right", left: "up", right: "stop", up: "stop" },
-        270: { up: "right", left: "down", right: "stop", down: "stop" }
+        270: { up: "right", left: "down", down: "stop", right: "stop"}
+    };
+
+    return directionMap[(tempRotation % 360)][direction] || "stop";
+  }
+
+  /**
+   * reverseDirection()
+   * @description reverses the direction of the laser
+   * @param {direction} direction the current direction of the laser  
+   * @returns the new direction of the laser
+   */
+  reverseDirection(direction) {
+    const directionMap = {
+        0: { down: "right", left: "up", left: "right", down: "up"},
+        90: { left: "down", up: "right", left: "right", up: "down"},
+        180: { right: "down", up: "left", right: "left", up: "down"},
+        270: { right: "up", down: "left", right: "left", down: "up" }
     };
 
     return directionMap[(this._rotation % 360)][direction] || direction;
   }
-
+  
 
   
 }

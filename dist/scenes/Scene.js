@@ -16,6 +16,11 @@ class Scene {
     }
 
 
+    destroy() {
+        
+    }
+
+
     /**
      * render()
      * @description renders the scene

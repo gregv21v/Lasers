@@ -10,6 +10,7 @@ class GridManager {
         this._game = game;
         this._player = game.player;
         this._grids = [];
+        this._lastPlacedSlot = {};
     }
 
 
@@ -31,22 +32,29 @@ class GridManager {
             y: event.clientY
         };
         let slot = null;
+        let gridOfSlot = null;
 
         // find the slot that was clicked on
         for (const grid of this._grids) {
             slot = (slot) ? slot : grid.findSlotContainingPoint(point);
+            gridOfSlot = (gridOfSlot) ? gridOfSlot : grid;
         }
 
         
         if(slot)
             if(!this._player.hand && !slot.isFixed) {
                 this._player.hand = slot.item;
+                console.log(slot);
+                console.log(this._player.hand);
                 this._player.hand.deactivate();   
                 slot.removeItem();
             } else if(slot.isEmpty()) {
-                slot.addItem(this._player.hand);
+                slot.addItem(this._player.hand)
+                gridOfSlot.updateSlot(slot.coordinate);
                 this._player.hand = null;
             }
+
+        this._lastPlacedSlot = slot;
     }
 
     /**
@@ -61,7 +69,11 @@ class GridManager {
                 x: event.clientX - GameObject.Size / 2,
                 y: event.clientY - GameObject.Size / 2
             };
-            this._player.hand.render(this._game.context);
         }
+    }
+
+
+    get lastPlacedSlot() {
+        return this._lastPlacedSlot;
     }
 }

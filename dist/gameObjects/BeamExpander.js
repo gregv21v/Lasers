@@ -21,6 +21,21 @@ class BeamExpander extends GameObject {
     return newBeamExpander;
   }
 
+
+  updateNode(grid, node) {
+    node.width += 1;
+    let nextPoint = grid.getNextSlot(node.point, node.direction);
+    if(grid.pointInGrid(nextPoint)) {
+      return {
+        ...node,
+        point: nextPoint,
+        width: node.width,
+        children: []
+      }
+    }
+    
+  }
+
   /**
     render()
     @description initialize the values for the svg

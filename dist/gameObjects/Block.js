@@ -33,8 +33,18 @@ class Block extends GameObject {
     }
 
 
+    updateNode(grid, node) {
+      this._needsUpdate = false;
+      return null;
+    }
+
+
     updateDirection(direction) {
       return "stop";
+    }
+
+    reverseDirection(direction) {
+      return 
     }
 }
   

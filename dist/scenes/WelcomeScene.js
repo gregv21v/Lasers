@@ -26,6 +26,15 @@ class WelcomeScene extends Scene {
         )
 
 
+        this._creativeBtn = new Button(
+            {x: game.width / 2 - 50, y: game.height / 2 + 120},
+            100, 40,
+            "Creative",
+            () => {
+                self._game.goToScene("Creative")
+            }
+        )
+
         this._instructions = new MultiLineText(
             {x: game.width / 2, y: game.height / 2 - 60},
             [
@@ -42,6 +51,7 @@ class WelcomeScene extends Scene {
      * @param {CanvasRenderingContext2D} context the context to draw to
      */
     render() {
+        this._game.context.clearRect(0, 0, this._game.width, this._game.height);
         this._game.context.font = "30px sans-serif";
         this._game.context.textAlign = 'center';
         this._game.context.textBaseline = 'middle';
@@ -57,6 +67,7 @@ class WelcomeScene extends Scene {
 
         this._startBtn.render(this._game.context);
         this._helpBtn.render(this._game.context);
+        this._creativeBtn.render(this._game.context);
     }
 
 
@@ -67,5 +78,6 @@ class WelcomeScene extends Scene {
      */
     onMouseClick(event) {
         this._startBtn.onClick(event);
+        this._creativeBtn.onClick(event);
     }
 }

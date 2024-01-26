@@ -1,38 +1,20 @@
 /**
  * TutorialScene - the scene that walks the player through the game
  */
-class TutorialScene extends Scene {
+class TutorialScene extends PlayableScene {
     constructor(game) {
         super(game)
         var self = this;
-        this._manager = {}
 
         this._levels = [
             new Level1(), new Level2(), new Level3(),
             new Level4(), new Level5(), new Level6(),
             new Level7()
         ];
-        this._currentLevel = 0;
 
-        var gridPosition = {
-            x: game.width / 2 - (10 * Slot.Size) / 2,
-            y: game.height / 2 - (10 * Slot.Size) / 2 - Slot.Size
-        }
-        var toolbarPosition  = {
-            x: game.width / 2 - (10 * Slot.Size) / 2,
-            y: game.height / 2 + (10 * Slot.Size) / 2
-        }
-
-
-        this._grid = new Grid(gridPosition, this._game.player, this._manager, 5, 5);
-        this._toolbar = new Toolbar(toolbarPosition, this._game.player, this._manager);
-
-        this._gridManager = new GridManager(this._game);
-        this._gridManager.addGrid(this._grid);
-        this._gridManager.addGrid(this._toolbar);
 
         this._nextBtn = new Button(
-            {x: toolbarPosition.x + Slot.Size * 10, y: toolbarPosition.y},
+            {x: this._toolbarPosition.x + Slot.Size * 10, y: this._toolbarPosition.y},
             100, 40,
             "Next",
             () => {
@@ -49,7 +31,7 @@ class TutorialScene extends Scene {
 
 
         this._helpBtn = new Button(
-            {x: toolbarPosition.x + Slot.Size * 10, y: toolbarPosition.y - 40},
+            {x: this._toolbarPosition.x + Slot.Size * 10, y: this._toolbarPosition.y - 40},
             100, 40,
             "Help",
             () => {
@@ -157,33 +139,6 @@ class TutorialScene extends Scene {
                 this._nextBtn.text = "You Win!!";
 
         }
-
-
-        console.log("mouse down");
     }
 
-    /**
-     * onMouseMove()
-     * @description called when the mouse has moved
-     * @param {MouseEvent} event the mouse event
-     */
-    onMouseMove(event) {
-        this._game.context.clearRect(0, 0, this._game.width, this._game.height);
-
-        this.render(this._game.context);
-
-        this._gridManager.onMouseMove(event);
-
-
-        this._game.context.beginPath();
-        this._game.context.ellipse(
-            event.clientX, 
-            event.clientY,
-            2, 2, 0,
-            0, Math.PI * 2
-        )
-        this._game.context.closePath();
-        this._game.context.fillStyle = "red";
-        this._game.context.fill();
-    }
 }

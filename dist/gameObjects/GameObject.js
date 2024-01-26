@@ -13,8 +13,40 @@ class GameObject {
   constructor(position = {x: 0, y: 0}) {
     this._position = position;
     this._activated = false;
+    this._rotationToggle = false;
+    this._hasBeam = false;
+    this._inDirection = "";
+    this._needsUpdate = false;
+    this._stateChanged = false;
   }
 
+  
+  /**
+     * update()
+     * @description updates the game object when no laser is input
+     * @param {Grid} grid the grid that this game object is on
+     * @param {Point} pointer the location on the grid of the game object
+     */
+  update(grid, pointer) {
+
+  }
+
+
+  /**
+   * place()
+   * @description places a rotator game object
+   * @param {Grid} grid the grid that the Rotator is placed on
+   * @param {Point} pointer the point the Rotator is placed at 
+   */
+  place(grid, pointer) {
+      
+  }
+
+
+  updateNode(grid, node) {
+    this._needsUpdate = false;
+    return {...node, children: []}
+  }
  
 
   /**
@@ -55,6 +87,15 @@ class GameObject {
 
   updateDirection(direction) {
     return direction;
+  }
+
+  reverseDirection(direction) {
+    return {
+      left: "right",
+      right: "left",
+      up: "down",
+      down: "up"
+    }[direction];
   }
 
   /**
@@ -147,6 +188,15 @@ class GameObject {
   }
 
 
+  get hasBeam() {
+    return this._hasBeam;
+  }
+
+  set hasBeam(val) {
+    this._hasBeam = val;
+  }
+
+
   /**
    * @description true if the target is active
    */
@@ -166,5 +216,36 @@ class GameObject {
    */
   deactivate() {
     this._activated = false;
+  }
+
+  toggle() {
+    this._activated = !this._activated;
+  }
+
+  
+  get inDirection() {
+    return this._inDirection;
+  }
+
+  set inDirection(value) {
+    this._inDirection = value;
+  }
+
+
+  get needsUpdate() {
+    return this._needsUpdate;
+  }
+
+  set needsUpdate(value) {
+    this._needsUpdate = value;
+  }
+
+
+  get stateChanged() {
+    return this._stateChanged;
+  }
+
+  set stateChanged(value) {
+    this._stateChanged = value;
   }
 }

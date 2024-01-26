@@ -6,7 +6,26 @@ class Emitter extends GameObject {
   constructor(position = {x: 0, y: 0}) {
     super(position);
     this._rotation = 0;
+    this._color = "red";
     
+  }
+
+  /**
+   * updateNode()
+   * @description updates the emitter node
+   * @param {Grid} grid the grid this game object is in
+   * @param {Node} node the node of the emitter, should just contain a point
+   * @returns the next node for the beam
+   */
+  updateNode(grid, node) {
+    return {
+      ...node,
+      point: grid.getNextSlot(node.point, this.direction),
+      color: "red",
+      width: 1,
+      direction: this.direction,
+      children: []
+    }
   }
 
 
@@ -112,5 +131,8 @@ class Emitter extends GameObject {
     }[this._rotation];
   }
   
+
+
+
 
 }

@@ -23,7 +23,7 @@ class Game {
             Creative: new CreativeScene(this),
             Win: new WinScene(this)
         }
-        this.goToScene("Creative");
+        this.goToScene("Welcome");
 
         let self = this;
         window.addEventListener('keydown', (event) => {
@@ -70,6 +70,8 @@ class Game {
      */
     goToScene(name) { 
         if(this._currentSceneName !== name) {
+            if(this.currentScene)
+                this.currentScene.destroy();
             this._currentSceneName = name;
             this.setupCurrentScene();
         }

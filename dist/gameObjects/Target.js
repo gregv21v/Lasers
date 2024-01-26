@@ -61,6 +61,23 @@ class Target extends GameObject {
       context.strokeStyle = (this._activated) ? "red" : "black";
       context.stroke();
     }
+
+    update(grid, pointer) {
+      if(grid.getLaserWidthAt(pointer.x, pointer.y) === this._requiredLaserSize) {
+        this.activate();
+      } else {
+        this.deactivate();
+      }
+    }
+
+    updateNode(grid, node) {
+      return null;
+    }
+
+
+    updateDirection(direction) {
+      return "stop";
+    }
     
 
     /**

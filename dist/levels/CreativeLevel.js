@@ -14,6 +14,7 @@ class CreativeLevel extends Level {
         this._toolbar.add(new Mirror());
         this._toolbar.add(new Rotator());
         this._toolbar.add(new Target());
+        this._toolbar.add(new TimerObject());
     }
 
 }
