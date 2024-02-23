@@ -10,7 +10,7 @@ class PlayScene extends PlayableScene {
             new Level4(), new Level5(), new Level6(),
             new Level7()
         ];
-        this._currentLevel = 5;
+        this._currentLevel = 0;
 
         this._toolbar = new Toolbar(this._toolbarPosition, this._game.player);
         this._gridManager.addGrid(this._toolbar);

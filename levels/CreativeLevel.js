@@ -15,6 +15,8 @@ class CreativeLevel extends Level {
         this._toolbar.add(new Rotator());
         this._toolbar.add(new Target());
         this._toolbar.add(new TimerObject());
+        this._toolbar.add(new Label({ x:0, y:0 }, "Input"));
+        this._toolbar.add(new Label({ x:0, y:0 }, "Output"));
     }
 
 }

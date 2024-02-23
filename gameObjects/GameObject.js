@@ -1,8 +1,7 @@
+
 /**
-  Item
+  GameObject - the main building block of the game
 */
-
-
 class GameObject {
   static Size = 30;
 
@@ -13,17 +12,17 @@ class GameObject {
   constructor(position = {x: 0, y: 0}) {
     this._position = position;
     this._activated = false;
-    this._rotationToggle = false;
     this._stateChanged = false;
+    this._rotation = 0;
   }
 
   
   /**
-     * update()
-     * @description updates the game object when no laser is input
-     * @param {Grid} grid the grid that this game object is on
-     * @param {Point} pointer the location on the grid of the game object
-     */
+   * update()
+   * @description updates the game object when no laser is input
+   * @param {Grid} grid the grid that this game object is on
+   * @param {Point} pointer the location on the grid of the game object
+   */
   update(grid, pointer) {
 
   }
@@ -40,59 +39,36 @@ class GameObject {
   }
 
 
-  updateNode(grid, node) {
+  /**
+   * getNextNode()
+   * @description gets the next node in the lasers path
+   * @param {Grid} grid the grid this node is part of
+   * @param {Node} node the laser node
+   * @returns the next node in the laser path
+   */
+  getNextNode(grid, node) {
     this._needsUpdate = false;
     return {...node, children: []}
   }
  
 
   /**
-   * updateDirection()
-   * @description updates the direction of the laser
-   * @param {direction} direction the current direction of the laser  
-   * @returns the new direction of the laser
+   * getNextDirection()
+   * @description gets the next direction of the laser
+   * @param {direction} direction the current direction the laser is going  
+   * @returns the next direction of the laser
    */
-  updateDirection(direction) {
-    return direction;
+  getNextDirections(direction) {
+    return [direction];
   }
 
-   
-
-  /**
-    toJSON()
-    @description converts this slot to its json representation
-  */
-  toJSON() {
-    return {
-      name: this.name,
-      quantity: this._quantity
-    }
-  }
-
-  /**
-   * clone()
-   * @description creates a clone of this item
-   * @returns a clone of this item
-   */
-  clone() {
-    let clone = new GameObject(this._position);
-    clone.quantity = this._quantity;
-
-    clone.render()
-    return clone
-  }
-
-  updateDirection(direction) {
-    return direction;
-  }
-
-  reverseDirection(direction) {
-    return {
-      left: "right",
-      right: "left",
-      up: "down",
-      down: "up"
-    }[direction];
+  getPreviousDirections(direction) {
+    return [{
+      [Direction.Left]: Direction.Right,
+      [Direction.Right]: Direction.Left,
+      [Direction.Up]: Direction.Down,
+      [Direction.Down]: Direction.Up
+    }[direction]];
   }
 
   /**
@@ -244,5 +220,17 @@ class GameObject {
 
   set stateChanged(value) {
     this._stateChanged = value;
+  }
+
+
+  /**
+   * clone()
+   * @description creates a clone of this item
+   * @returns a clone of this item
+   */
+  clone() {
+    let clone = new GameObject(this._position);
+    clone._rotation = this._rotation
+    return clone
   }
 }

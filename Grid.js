@@ -1,3 +1,4 @@
+
 class Grid {
   
     /**
@@ -60,15 +61,15 @@ class Grid {
     getNextSlot(pointer, direction) {
       // choose the direction the emitter goes
       // and update the pointer accordingly.
-      if(direction === "right") {
-        return {x: pointer.x + 1 , y: pointer.y}
-      } else if(direction === "left") {
+      if(direction === Direction.Right) {
+        return {x: pointer.x + 1, y: pointer.y}
+      } else if(direction === Direction.Left) {
         return {x: pointer.x - 1, y: pointer.y}
-      } else if(direction === "down") {
+      } else if(direction === Direction.Down) {
         return {x: pointer.x, y: pointer.y + 1}
-      } else if(direction === "up") {
+      } else if(direction === Direction.Up) {
         return {x: pointer.x, y: pointer.y - 1}
-      } else if(direction === "stop") {
+      } else if(direction === Direction.Stop) {
         return {x: pointer.x, y: pointer.y}
       }
     }
@@ -83,7 +84,7 @@ class Grid {
      */ 
     getNextDirection(direction, slot) {
       if(slot.item) {
-        return slot.item.updateDirection(direction);
+        return slot.item.getNextDirections(direction);
       } else {
         return direction;
       }
@@ -160,7 +161,7 @@ class Grid {
       if(slot && slot.item && !(slot.item instanceof Emitter)) {
         //slot.item.inDirection = startNode.direction; // set the in direction
         
-        let children = slot.item.updateNode(this, startNode);
+        let children = slot.item.getNextNode(this, startNode);
 
         
         if(children) { 

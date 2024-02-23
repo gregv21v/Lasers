@@ -1,4 +1,6 @@
-
+/**
+ * Rotator - rotates the surrounding game objects
+ */
 class Rotator extends GameObject {
 
     /**
@@ -16,19 +18,7 @@ class Rotator extends GameObject {
       this._hasBeenRotated = false;
     }
 
-    /**
-     * clone()
-     * @description clones the Rotator
-     * @returns {Rotator} a clone of the Rotator
-     */
-    clone() {
-      let newRotator = new Rotator();
-      newRotator._activated = this._activated;
-      newRotator._requiredLaserSize = this._requiredLaserSize;
-      newRotator._position = this._position;
-
-      return newRotator;
-    }
+    
 
 
     renderArrowHead(context, center, radius, angle) {
@@ -171,7 +161,14 @@ class Rotator extends GameObject {
       } 
     }
 
-    updateNode(grid, node) {
+    /**
+     * getNextNode()
+     * @description gets the next node in the lasers path
+     * @param {Grid} grid the grid this node is part of
+     * @param {Node} node the laser node
+     * @returns the next node in the laser path
+     */
+    getNextNode(grid, node) {
       let point = grid.getNextSlot(node.point, node.direction)
       if(grid.pointInGrid(point)) {
         return {
@@ -200,6 +197,21 @@ class Rotator extends GameObject {
      */
     get requiredLaserSize() {
       return this._requiredLaserSize;
+    }
+
+
+    /**
+     * clone()
+     * @description clones the Rotator
+     * @returns {Rotator} a clone of the Rotator
+     */
+    clone() {
+      let newRotator = new Rotator();
+      newRotator._activated = this._activated;
+      newRotator._requiredLaserSize = this._requiredLaserSize;
+      newRotator._position = this._position;
+
+      return newRotator;
     }
   }
   

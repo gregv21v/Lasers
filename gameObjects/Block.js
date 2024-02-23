@@ -1,3 +1,4 @@
+
 /**
  * Block - blocks the laser beam travel
  */
@@ -33,18 +34,25 @@ class Block extends GameObject {
     }
 
 
-    updateNode(grid, node) {
+    /**
+     * getNextNode()
+     * @description gets the next node in the lasers path
+     * @param {Grid} grid the grid this node is part of
+     * @param {Node} node the laser node
+     * @returns the next node in the laser path
+     */
+    getNextNode(grid, node) {
       this._needsUpdate = false;
       return null;
     }
 
 
-    updateDirection(direction) {
-      return "stop";
+    getNextDirections(direction) {
+      return [Direction.Stop];
     }
 
-    reverseDirection(direction) {
-      return 
+    getPreviousDirections(direction) {
+      return [];
     }
 }
   

@@ -42,11 +42,18 @@ class Mirror extends GameObject {
     });
   }
 
-  updateNode(grid, node) {
-    let nextDirection = this.updateDirection(node.direction);
+  /**
+   * getNextNode()
+   * @description gets the next node in the lasers path
+   * @param {Grid} grid the grid this node is part of
+   * @param {Node} node the laser node
+   * @returns the next node in the laser path
+   */
+  getNextNode(grid, node) {
+    let nextDirection = this.getNextDirections(node.direction)[0];
     let nextPoint = grid.getNextSlot(node.point, nextDirection);
 
-    if(!grid.pointInGrid(nextPoint) || nextDirection === "stop") {
+    if(!grid.pointInGrid(nextPoint) || nextDirection === Direction.Stop) {
       return null;
     } else {
       return {
@@ -105,23 +112,46 @@ class Mirror extends GameObject {
   }
 
   /**
-   * updateDirection()
+   * getNextDirections()
    * @description updates the direction of the laser
    * @param {direction} direction the current direction of the laser  
    * @returns the new direction of the laser
    */
-  updateDirection(direction) {
+  getNextDirections(direction) {
 
     while(this._rotation < 0) this._rotation += 360;
 
+    console.log(direction);
+
     const directionMap = {
-        0: { right: "down", up: "left", down: "stop", left: "stop"},
-        90: { down: "left", right: "up", up: "stop", left: "stop" },
-        180: { down: "right", left: "up", right: "stop", up: "stop" },
-        270: { up: "right", left: "down", down: "stop", right: "stop"}
+        0: { 
+          [Direction.Right]: Direction.Down,
+          [Direction.Up]: Direction.Left,
+          [Direction.Down]: Direction.Stop,
+          [Direction.Left]: Direction.Stop
+        },
+        90: { 
+          [Direction.Down]: Direction.Left,
+          [Direction.Right]: Direction.Up,
+          [Direction.Up]: Direction.Stop,
+          [Direction.Left]: Direction.Stop 
+        },
+        180: { 
+          [Direction.Down]: Direction.Right,
+          [Direction.Left]: Direction.Up,
+          [Direction.Right]: Direction.Stop,
+          [Direction.Up]: Direction.Stop 
+        },
+        270: { 
+          [Direction.Up]: Direction.Right,
+          [Direction.Left]: Direction.Down,
+          [Direction.Down]: Direction.Stop,
+          [Direction.Right]: Direction.Stop
+        }
     };
 
-    return directionMap[(this._rotation % 360)][direction] || "stop";
+
+    return [directionMap[(this._rotation % 360)][direction]];
   }
 
   /**
@@ -132,10 +162,30 @@ class Mirror extends GameObject {
    */
   reverseDirection(direction) {
     const directionMap = {
-        0: { down: "right", left: "up", left: "right", down: "up"},
-        90: { left: "down", up: "right", left: "right", up: "down"},
-        180: { right: "down", up: "left", right: "left", up: "down"},
-        270: { right: "up", down: "left", right: "left", down: "up" }
+        0: { 
+          [Direction.Down]: Direction.Right,
+          [Direction.Left]: Direction.Up,
+          [Direction.Left]: Direction.Right,
+          [Direction.Down]: Direction.Up
+        },
+        90: { 
+          [Direction.Left]: Direction.Down,
+          [Direction.Up]: Direction.Right,
+          [Direction.Left]: Direction.Right,
+          [Direction.Up]: Direction.Down
+        },
+        180: { 
+          [Direction.Right]: Direction.Down,
+          [Direction.Up]: Direction.Left,
+          [Direction.Right]: Direction.Left,
+          [Direction.Up]: Direction.Down
+        },
+        270: { 
+          [Direction.Right]: Direction.Up,
+          [Direction.Down]: Direction.Left,
+          [Direction.Right]: Direction.Left,
+          [Direction.Down]: Direction.Up 
+        }
     };
 
     return directionMap[(this._rotation % 360)][direction] || direction;
