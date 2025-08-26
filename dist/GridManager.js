@@ -44,9 +44,7 @@ class GridManager {
         if(slot)
             if(!this._player.hand && !slot.isFixed) {
                 this._player.hand = slot.item;
-                console.log(slot);
-                console.log(this._player.hand);
-                this._player.hand.deactivate();   
+                this._player.hand.pickUp();
                 slot.removeItem();
             } else if(slot.isEmpty()) {
                 slot.addItem(this._player.hand)

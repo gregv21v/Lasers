@@ -29,3 +29,35 @@ function rotatePoints(points, angle, origin) {
     }
     return newPoints;
 }
+
+
+
+/**
+ * translatePoint()
+ * @description translate a point by a certain amount
+ * @param {Point} point the point to translate
+ * @param {Number} translation the amount to translate the point by
+ * @returns the new translated point
+ */
+function translatePoint(point, translation) {
+    return {
+        x: point.x + translation.x,
+        y: point.y + translation.y
+    }
+}
+
+
+/**
+ * translatePoints()
+ * @description translate an array of points by a certain amount
+ * @param {Array[Point]} points the points to translate
+ * @param {Number} translation the amount to translate the points by
+ * @returns the new translated points
+ */
+function translatePoints(points, translation) {
+    let newPoints = [];
+    for(const point of points) {
+        newPoints.push(translatePoint(point, translation));
+    }
+    return newPoints;
+}

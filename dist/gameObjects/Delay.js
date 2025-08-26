@@ -1,5 +1,5 @@
 
-class TimerObject extends GameObject {
+class Delay extends GameObject {
 
     /**
       constructor()
@@ -13,6 +13,8 @@ class TimerObject extends GameObject {
       this._currentTime = 0;
       this._endTime = 300;
       this._pulseLength = 100;
+      this._triggered = false;
+    
     }
 
     /**
@@ -21,14 +23,14 @@ class TimerObject extends GameObject {
      * @returns {Rotator} a clone of the Rotator
      */
     clone() {
-      let timer = new TimerObject();
-      timer._activated = this._activated;
-      timer._requiredLaserSize = this._requiredLaserSize;
-      timer._position = this._position;
-      timer._currentTime = this._currentTime;
-      timer._endTime = this._endTime;
+      let delay = new Delay();
+      delay._activated = this._activated;
+      delay._requiredLaserSize = this._requiredLaserSize;
+      delay._position = this._position;
+      delay._currentTime = this._currentTime;
+      delay._endTime = this._endTime;
 
-      return timer;
+      return delay;
     }
 
 
@@ -40,8 +42,13 @@ class TimerObject extends GameObject {
     */
     render(context) {
       const color = (this._activated) ? "red" : "black";
-      let angle = Math.PI * 2 * (this._currentTime / (this._endTime + this._pulseLength));
-      let pulseStartAngle = Math.PI * 2 * (this._endTime / (this._endTime + this._pulseLength));
+      let angle = 0;
+      if(this._timerStarted && this._activated) {
+        angle = Math.PI * 2;
+      } else {
+        angle = Math.PI * 2 * (this._currentTime / this._endTime);
+      }
+      let pulseStartAngle = Math.PI * 2;
       let pulseEndAngle = Math.PI * 2;
 
       let center = {
@@ -103,16 +110,52 @@ class TimerObject extends GameObject {
 
 
     update(grid, pointer) {
-      this._needsUpdate = false;
-      this._currentTime++;
-      if(this._currentTime > this._endTime) {
-        // trigger adjacent blocks
-        this.activate();
-        if(this._currentTime > this._endTime + this._pulseLength) {
-          this.deactivate();
-          this._currentTime = 0;
+        if (this._stateChanged) {
+            // start the timer 
+            if(this._activated) {
+                this._timerStarted = true;
+                this._currentTime = 0;
+                this.deactivate();
+            } else {
+                this._timerStarted = false;
+                this._currentTime = 0;
+                this.deactivate();
+            }
+            
         }
-      }
+
+        if (this._timerStarted) {
+            this._currentTime++;
+            if (this._currentTime > this._endTime) {
+                this.activate();
+            }
+        }
+
+        
+    }
+
+
+    pickUp() {
+        super.pickUp();
+        this._timerStarted = false;
+        this._currentTime = 0;
+    }
+   
+
+    /**
+    * place()
+    * @description places a rotator game object
+    * @param {Grid} grid the grid that the Rotator is placed on
+    * @param {Point} pointer the point the Rotator is placed at 
+    */
+    place(grid, pointer) {
+        let cellOn = grid.getCellState(pointer.x, pointer.y);
+
+        if(cellOn) {
+            this.activate();
+        } else {
+            this.deactivate();
+        }
     }
   
     /**

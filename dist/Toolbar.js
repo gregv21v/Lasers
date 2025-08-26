@@ -6,7 +6,7 @@ class Toolbar extends Grid {
     @description constructs the toolbar
   */
   constructor(position, player, manager) {
-    super(position, player, manager, 1, 10)
+    super(position, player, manager, 2, 10)
   }
 
   /**

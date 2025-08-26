@@ -1,3 +1,4 @@
+
 class Grid {
   
     /**
@@ -27,6 +28,7 @@ class Grid {
       this._previousLaserMatrix = new Matrix(this._rows, this._columns); // the matrix representing the slots which previously had active lasers in them
       this._laserWidthMatrix = new Matrix(this._rows, this._columns); // the matrix of the widths of the lasers
 
+
       this._createSlots();
     }
 
@@ -51,6 +53,262 @@ class Grid {
     }
 
 
+    /**
+     * shiftRight()
+     * @description shifts the items in a row right starting at start all the way down to 
+     *  the first empty slot
+     * @param {Integer} start the start index in the row
+     * @param {Integer} rowIndex the row index 
+     */
+    shiftRight(start, rowIndex) {
+      let emptySlot = this.findLastEmptySlotInRow(start, Direction.Right, rowIndex);
+
+      if(emptySlot) {
+        for(let j = emptySlot-1; j > start; j--) {
+          let slot = this.getSlotAt(j, rowIndex);
+          let emptySlot = this.getSlotAt(j+1, rowIndex);
+          emptySlot.addItem(slot.item);
+          emptySlot.item.update(this, emptySlot.coordinate);
+          slot.removeItem();
+          
+        }
+      }
+    }
+
+
+    /**
+     * shiftLeft()
+     * @description shifts the items in a row left starting at start all the way down to 
+     *  the first empty slot
+     * @param {Integer} start the start index in the row
+     * @param {Integer} rowIndex the row index 
+     */
+    shiftLeft(start, rowIndex) {
+      let emptySlot = this.findLastEmptySlotInRow(start, Direction.Left, rowIndex);
+
+      if(emptySlot) {
+        for(let j = emptySlot; j < start-1; j++) {
+          let slot = this.getSlotAt(j+1, rowIndex);
+          let emptySlot = this.getSlotAt(j, rowIndex);
+          emptySlot.addItem(slot.item);
+          emptySlot.item.update(this, emptySlot.coordinate);
+          slot.removeItem();
+        }
+      }
+    }
+
+
+    /**
+     * shiftDown()
+     * @description shifts the items in a column down starting at start all the way down to 
+     *  the first empty slot
+     * @param {Integer} start the start index in the column to shift
+     * @param {Integer} columnIndex the column index 
+     */
+    shiftDown(start, columnIndex) {
+      let emptySlot = this.findLastEmptySlotInColumn(start, Direction.Down, columnIndex);
+      console.log(emptySlot);
+
+      if(emptySlot) {
+        for(let j = emptySlot-1; j > start; j--) {
+          let slot = this.getSlotAt(columnIndex, j);
+          let emptySlot = this.getSlotAt(columnIndex, j+1);
+          emptySlot.addItem(slot.item);
+          emptySlot.item.update(this, emptySlot.coordinate);
+          slot.removeItem();
+        }
+      }
+    }
+
+
+    /**
+     * shiftUp()
+     * @description shifts the items in a row up starting at start all the way up to 
+     *  the first empty slot
+     * @param {Integer} start the start index in the column to shift
+     * @param {Integer} columnIndex the index of the column to shift 
+     */
+    shiftUp(start, columnIndex) {
+      let emptySlot = this.findLastEmptySlotInColumn(start, Direction.Up, columnIndex);
+      console.log(emptySlot);
+
+      if(emptySlot) {
+        for(let j = emptySlot; j < start-1; j++) {
+          let slot = this.getSlotAt(columnIndex, j+1);
+          let emptySlot = this.getSlotAt(columnIndex, j);
+          emptySlot.addItem(slot.item);
+          emptySlot.item.update(this, emptySlot.coordinate);
+          slot.removeItem();
+        }
+      }
+    }
+
+    /**
+     * pullLeft()
+     * @description pulls an item one space to the left
+     * @param {Integer} start the start index in the column to pull
+     * @param {Integer} rowIndex the index of the row to pull
+     */
+    pullLeft(start, rowIndex) {
+      let slot = this.getSlotAt(start, rowIndex);
+      let nextSlot = (start+1 < this._columns) ? this.getSlotAt(start+1, rowIndex) : null;
+      let emptySlot = this.getSlotAt(start-1, rowIndex);
+
+      if(emptySlot && emptySlot.isEmpty() && slot && !slot.isEmpty()) { 
+        emptySlot.addItem(slot.item);
+        slot.removeItem();
+        if(nextSlot && nextSlot.item && nextSlot.item instanceof StickyPiston) 
+          this.pullWith(rowIndex, start, Direction.Left);
+      }
+      
+    }
+
+    /**
+     * pullRight()
+     * @description pulls an item one space to the right
+     * @param {Integer} start the start index in the column to pull
+     * @param {Integer} rowIndex the index of the row to pull
+     */
+    pullRight(start, rowIndex) {
+      let slot = this.getSlotAt(start, rowIndex);
+      let nextSlot = (start-1 >= 0) ? this.getSlotAt(start-1, rowIndex) : null;
+      let emptySlot = this.getSlotAt(start+1, rowIndex);
+
+      if(emptySlot && emptySlot.isEmpty() && slot && !slot.isEmpty()) {
+        emptySlot.addItem(slot.item);
+        slot.removeItem();
+        if(nextSlot && nextSlot.item && nextSlot.item instanceof StickyPiston) 
+          this.pullWith(rowIndex, start, Direction.Right);
+      }
+    }
+
+    /**
+     * pullUp()
+     * @description pulls an item one space up
+     * @param {Integer} start the start index in the column to pull
+     * @param {Integer} columnIndex the index of the column to pull
+     */
+    pullUp(start, columnIndex) {
+      let slot = this.getSlotAt(columnIndex, start);
+      let nextSlot = (start+1 < this._rows) ? this.getSlotAt(columnIndex, start+1) : null;
+      let emptySlot = this.getSlotAt(columnIndex, start-1);
+
+      if(emptySlot && emptySlot.isEmpty() && slot && !slot.isEmpty()) { 
+        emptySlot.addItem(slot.item);
+        slot.removeItem();
+        if(
+            nextSlot && nextSlot.item && 
+            nextSlot.item instanceof StickyPiston
+        ) 
+          this.pullWith(columnIndex, start, Direction.Up);
+      }
+    }
+
+    /**
+     * pullDown()
+     * @description pulls an item one space down
+     * @param {Integer} start the start index in the row to pull
+     * @param {Integer} columnIndex the index of the column to pull
+     */
+    pullDown(start, columnIndex) {
+      let slot = this.getSlotAt(columnIndex, start);
+      let nextSlot = (start-1 >= 0) ? this.getSlotAt(columnIndex, start-1) : null;
+      let emptySlot = this.getSlotAt(columnIndex, start+1);
+
+      if(emptySlot && emptySlot.isEmpty() && slot && !slot.isEmpty()) {
+        emptySlot.addItem(slot.item);
+        slot.removeItem();
+        if(
+            nextSlot && nextSlot.item && 
+            nextSlot.item instanceof StickyPiston 
+        ) 
+          this.pullWith(columnIndex, start, Direction.Down);
+      }
+    }
+
+
+    /**
+     * pullWith()
+     * @description pulls an item in the given direction
+     * @param {Integer} x the x coordinate of the item to pull
+     * @param {Integer} y the y coordinate of the item to pull
+     * @param {Direction} direction the direction to pull the item
+     */
+    pullWith(x, y, direction) {
+      if(direction === Direction.Right) {
+        this.pullRight(y - 1, x);
+      } else if(direction === Direction.Left) {
+        this.pullLeft(y + 1, x);
+      } else if(direction === Direction.Down) {
+        this.pullDown(y - 1, x);
+      } else if(direction === Direction.Up) {
+        this.pullUp(y + 1, x);
+      }
+    }
+    
+
+
+    /**
+     * findLastEmptySlotInRow()
+     * @description Finds the last empty slot in a row
+     * @param {Integer} start the index to start searching at
+     * @param {Direction} direction the direction to search in
+     * @param {Integer} rowIndex the index of the row
+     * @returns {Integer} the index of the last empty slot or null if none is found
+     */
+    findLastEmptySlotInRow(start, direction, rowIndex) {
+      let i = start;
+      if(direction === Direction.Right) {
+        while(i < this._columns) {
+            if(!this.getSlotAt(i, rowIndex).item) {
+                return i;
+            }
+            i++;
+        }
+      } else {
+        while(i >= 0) {
+            console.log(i);
+            if(!this.getSlotAt(i, rowIndex).item) {
+                return i;
+            }
+            i--;
+        }
+      }
+
+      return null;
+    }
+
+
+    /**
+     * findLastEmptySlotInColumn()
+     * @description Finds the last empty slot in a column
+     * @param {Integer} start the index to start searching at
+     * @param {Direction} direction the direction to search in
+     * @param {Integer} columnIndex the index of the column
+     * @returns {Integer} the index of the last empty slot or null if none is found
+     */
+    findLastEmptySlotInColumn(start, direction, columnIndex) {
+      let i = start;
+      if(direction === Direction.Down) {
+        while(i < this._rows) {
+            if(!this.getSlotAt(columnIndex, i).item) {
+                return i;
+            }
+            i++;
+        }
+      } else {
+        while(i >= 0) {
+            if(!this.getSlotAt(columnIndex, i).item) {
+                return i;
+            }
+            i--;
+        }
+      }
+
+      return null;
+    }
+
+
     
     /**
      * getNextSlot()
@@ -60,15 +318,15 @@ class Grid {
     getNextSlot(pointer, direction) {
       // choose the direction the emitter goes
       // and update the pointer accordingly.
-      if(direction === "right") {
-        return {x: pointer.x + 1 , y: pointer.y}
-      } else if(direction === "left") {
+      if(direction === Direction.Right) {
+        return {x: pointer.x + 1, y: pointer.y}
+      } else if(direction === Direction.Left) {
         return {x: pointer.x - 1, y: pointer.y}
-      } else if(direction === "down") {
+      } else if(direction === Direction.Down) {
         return {x: pointer.x, y: pointer.y + 1}
-      } else if(direction === "up") {
+      } else if(direction === Direction.Up) {
         return {x: pointer.x, y: pointer.y - 1}
-      } else if(direction === "stop") {
+      } else if(direction === Direction.Stop) {
         return {x: pointer.x, y: pointer.y}
       }
     }
@@ -83,7 +341,7 @@ class Grid {
      */ 
     getNextDirection(direction, slot) {
       if(slot.item) {
-        return slot.item.updateDirection(direction);
+        return slot.item.getNextDirections(direction);
       } else {
         return direction;
       }
@@ -160,7 +418,7 @@ class Grid {
       if(slot && slot.item && !(slot.item instanceof Emitter)) {
         //slot.item.inDirection = startNode.direction; // set the in direction
         
-        let children = slot.item.updateNode(this, startNode);
+        let children = slot.item.getNextNode(this, startNode);
 
         
         if(children) { 
@@ -212,6 +470,7 @@ class Grid {
       this._currentLaserMatrix = new Matrix(this._rows, this._columns);
       this._laserWidthMatrix = new Matrix(this._rows, this._columns);
 
+
       // update the matrices with the new lasers
       for (const node of rootNodes) {
         // update the laser matrices 
@@ -246,7 +505,8 @@ class Grid {
       for (var x = 0; x < this._columns; x++) {
         for (var y = 0; y < this._rows; y++) {
           if(this._slots[x][y].item)
-            this._slots[x][y].item.update(this, {x, y});
+            if(this._slots[x][y].item.stateChanged)
+              this._slots[x][y].item.update(this, {x, y});
         }
       }
     }
@@ -256,7 +516,7 @@ class Grid {
     updateSlot(coordinate) {
       if(this._currentLaserMatrix.getAt(coordinate.x, coordinate.y)) {
         this._slots[coordinate.x][coordinate.y].item.stateChanged = true;
-        this._slots[coordinate.x][coordinate.y].item.place();
+        this._slots[coordinate.x][coordinate.y].item.place(this, coordinate);
         this._slots[coordinate.x][coordinate.y].item.update(this, coordinate);
       }
     }
@@ -317,7 +577,14 @@ class Grid {
 
 
 
+    getCellState(x, y) {
+      return this._currentLaserMatrix.getAt(x, y);
+    }
 
+
+    getCellPreviousState(x, y) {
+      return this._previousLaserMatrix.getAt(x, y);
+    }
     
 
 
@@ -477,6 +744,14 @@ class Grid {
     get active() {
       return this._active;
     }
+
+    get rows() {
+      return this._rows;
+    }
+
+    get columns() {
+      return this._columns;
+    }
   
     /**
       activate
@@ -618,12 +893,22 @@ class Grid {
   
     /**
      * render()
-     * @param {Object} props the properties to render
+     * @description renders the grid
      */
     render(context) {
+      // render the slots themselves
       for (var x = 0; x < this._columns; x++) {
         for (var y = 0; y < this._rows; y++) {
           this._slots[x][y].render(context)
+        }
+      }
+
+      // render the GameObjects in the slots
+      for (var x = 0; x < this._columns; x++) {
+        for (var y = 0; y < this._rows; y++) {
+          if(this._slots[x][y].item) {
+            this._slots[x][y].item.render(context)
+          }
         }
       }
 

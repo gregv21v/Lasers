@@ -21,6 +21,8 @@ class Level4 extends Level {
         targetSlot.isFixed = true;
         targetSlot.addItem(this._targets[0]);
 
+        console.log(this._targets);
+
         this._toolbar.add(beamExpander);
     }
 

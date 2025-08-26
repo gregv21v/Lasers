@@ -52,8 +52,19 @@ class Slot {
       context.strokeStyle = "black";
       context.strokeRect(this._position.x, this._position.y, Slot.Size, Slot.Size);
 
-      if(this._item)
-        this._item.render(context);
+      context.fillTextAlign = "center";
+      context.fillTextBaseline = "middle";
+      context.fillStyle = "black";
+      context.font = "12px Arial";
+      context.fillText(
+        this._grid.getCellState(this._coordinate.x, this._coordinate.y),
+        this._position.x + Slot.Size - 10,
+        this._position.y + Slot.Size - 10
+      );
+
+
+      //if(this._item)
+        //this._item.render(context);
 
     }
   
@@ -115,6 +126,8 @@ class Slot {
         }
       }
     }
+
+    
   
     /**
       * consumeOne()
@@ -135,7 +148,6 @@ class Slot {
      * @param item the new item to replace the old one with
      */
     replaceItem(item) {
-      console.log("Replacing item");
       this.destroyItem();
       this.addItem(item)
     }

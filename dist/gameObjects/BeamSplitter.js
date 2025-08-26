@@ -1,18 +1,25 @@
+
 class BeamSplitter extends GameObject {
     /**
-      constructor()
-      @description constructs the block
-    */
+     * constructor()
+     * @description constructs this BeamSplitter
+     * @param {Point} position the position of this GameObject
+     */
     constructor(position = {x: 0, y: 0}) {
       super(position);
-      this._rotation = 45;
-      this._directions = ["down", "right"]
-      
+      this._rotation = 45; // the rotation of the BeamSplitter
     }
 
 
-    updateNode(grid, node) {
-      return this.getDirections(node.direction).map(direction => {
+    /**
+     * getNextNode()
+     * @description gets the next node in the lasers path
+     * @param {Grid} grid the grid this node is part of
+     * @param {Node} node the laser node
+     * @returns the next node in the laser path
+     */
+    getNextNode(grid, node) {
+      return this.getNextDirections(node.direction).map(direction => {
         let nextPoint = grid.getNextSlot(node.point, direction)
 
         if(grid.pointInGrid(nextPoint)) {
@@ -28,19 +35,7 @@ class BeamSplitter extends GameObject {
       })
     }
 
-    /**
-     * clone()
-     * @description clones the BeamSplitter
-     * @returns {BeamSplitter} a clone of the BeamSplitter
-     */
-    clone() {
-      let newBeamSplitter = new BeamSplitter();
-      newBeamSplitter._position = this._position;
-      newBeamSplitter._direction = this._direction; 
-      newBeamSplitter._rotation = this._rotation;
-
-      return newBeamSplitter;
-    }
+    
   
     _createPath() {
         this._path = [];
@@ -107,12 +102,39 @@ class BeamSplitter extends GameObject {
 
     }
   
-    getDirections(inputDirection) {
+    getNextDirections(inputDirection) {
+      while(this._rotation < 0) this._rotation += 360;
+
       let map = {
-        0: { down: "right", right: "down", up: "left", left: "up"},
-        90: { down: "left", right: "up", up: "right", left: "down"}
+        0: { 
+          [Direction.Down]: Direction.Right, 
+          [Direction.Right]: Direction.Down, 
+          [Direction.Up]: Direction.Left, 
+          [Direction.Left]: Direction.Up
+        },
+        90: { 
+          [Direction.Down]: Direction.Left, 
+          [Direction.Right]: Direction.Up, 
+          [Direction.Up]: Direction.Right, 
+          [Direction.Left]: Direction.Down
+        }
       }
-      return [map[this._rotation - 45][inputDirection]].concat(inputDirection)
+      return [map[(this._rotation - 45) % 180][inputDirection]].concat(inputDirection)
+    }
+
+
+    /**
+     * clone()
+     * @description clones the BeamSplitter
+     * @returns {BeamSplitter} a clone of the BeamSplitter
+     */
+    clone() {
+      let newBeamSplitter = new BeamSplitter();
+      newBeamSplitter._position = this._position;
+      newBeamSplitter._direction = this._direction; 
+      newBeamSplitter._rotation = this._rotation;
+
+      return newBeamSplitter;
     }
   
 

@@ -1,3 +1,4 @@
+
 class InfiniteGrid extends Grid {
   
     /**
@@ -33,25 +34,7 @@ class InfiniteGrid extends Grid {
 
 
     
-    /**
-     * getNextSlot()
-     * @param {Point} pointer the pointer to the current position of the laser
-     * @param {Direction} direction the direction the laser is going
-     */
-    getNextSlot(pointer, direction) {
-
-      // choose the direction the emitter goes
-      // and update the pointer accordingly.
-      if(direction === "right") {
-        return {x: pointer.x + 1 , y: pointer.y}
-      } else if(direction === "left") {
-        return {x: pointer.x - 1, y: pointer.y}
-      } else if(direction === "down") {
-        return {x: pointer.x, y: pointer.y + 1}
-      } else if(direction === "up") {
-        return {x: pointer.x, y: pointer.y - 1}
-      }
-    }
+   
 
 
     /**
@@ -63,7 +46,7 @@ class InfiniteGrid extends Grid {
      */ 
     getNextDirection(direction, slot) {
       if(slot.item) {
-        return slot.item.updateDirection(direction);
+        return slot.item.getNextDirection(direction);
       } else {
         return direction;
       }
@@ -460,6 +443,15 @@ class InfiniteGrid extends Grid {
       for (var x = 0; x < this._columns; x++) {
         for (var y = 0; y < this._rows; y++) {
           this._slots[x][y].render(context)
+        }
+      }
+
+      // render the GameObjects in the slots
+      for (var x = 0; x < this._columns; x++) {
+        for (var y = 0; y < this._rows; y++) {
+          if(this._slots[x][y].item) {
+            this._slots[x][y].item.render(context)
+          }
         }
       }
     }

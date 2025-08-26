@@ -1,3 +1,4 @@
+
 class Emitter extends GameObject {
   /**
     constructor()
@@ -11,13 +12,13 @@ class Emitter extends GameObject {
   }
 
   /**
-   * updateNode()
-   * @description updates the emitter node
-   * @param {Grid} grid the grid this game object is in
-   * @param {Node} node the node of the emitter, should just contain a point
-   * @returns the next node for the beam
+   * getNextNode()
+   * @description gets the next node in the lasers path
+   * @param {Grid} grid the grid this node is part of
+   * @param {Node} node the laser node
+   * @returns the next node in the laser path
    */
-  updateNode(grid, node) {
+  getNextNode(grid, node) {
     let nextPoint = grid.getNextSlot(node.point, this.direction);
     if(grid.pointInGrid(nextPoint)) {
       return {
@@ -132,10 +133,10 @@ class Emitter extends GameObject {
     while(this._rotation < 0) this._rotation += 360;
 
     return {
-      0: "right",
-      90: "down",
-      180: "left",
-      270: "up"
+      0: Direction.Right,
+      90: Direction.Down,
+      180: Direction.Left,
+      270: Direction.Up
     }[this._rotation % 360];
   }
   

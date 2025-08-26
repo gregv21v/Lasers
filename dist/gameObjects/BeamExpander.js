@@ -1,66 +1,22 @@
-
+/**
+ * BeamExpander - expands the laser beam when it enters this GameObject.
+ */
 class BeamExpander extends GameObject {
 
   /**
-    constructor()
-    @description constructs the block
-  */
+   * constructor()
+   * @description constructs this BeamExpander
+   * @param {Point} position the position of this GameObject
+   */
   constructor(position = {x: 0, y: 0}) {
     super(position);
-    this._rotation = 0;
   }
+
 
   /**
-     * clone()
-     * @description clones the BeamExpander
-     * @returns {BeamExpander} a clone of the BeamExpander
-     */
-  clone() {
-    let newBeamExpander = new BeamExpander();
-    newBeamExpander._position = this._position;
-
-    return newBeamExpander;
-  }
-
-
-  updateNode(grid, node) {
-    node.width += 1;
-    let nextPoint = grid.getNextSlot(node.point, node.direction);
-    let nextDirection = this.updateDirection(node.direction);
-    if(grid.pointInGrid(nextPoint) && nextDirection !== "stop") {
-      return {
-        ...node,
-        direction: this.updateDirection(node.direction),
-        point: nextPoint,
-        width: node.width,
-        children: []
-      }
-    } else {
-      return null;
-    }
-    
-  }
-
-  /**
-   * updateDirection()
-   * @description updates the direction of the laser
-   * @param {direction} direction the current direction of the laser  
-   * @returns the new direction of the laser
+   * _createPath()
+   * @description creates the path of the graphic for the GameObject
    */
-  updateDirection(direction) {
-
-    while(this._rotation < 0) this._rotation += 360;
-
-    const directionMap = {
-        0: { right: "right"},
-        90: { down: "down"},
-        180: { left: "left"},
-        270: { up: "up"}
-    };
-
-    return directionMap[(this._rotation % 360)][direction] || "stop";
-  }
-
   _createPath() {
     this._path = [];
 
@@ -98,9 +54,10 @@ class BeamExpander extends GameObject {
   }
 
   /**
-    render()
-    @description initialize the values for the svg
-  */
+   * render()
+   * @description renders the beam expander graphic
+   * @param {CanvasRenderingContext2D} context the context to render to
+   */
   render(context) {
     this._createPath();
     this._applyRotation(this._rotation);
@@ -116,6 +73,65 @@ class BeamExpander extends GameObject {
 
     context.strokeStyle = "black";
     context.stroke();
+  }
+
+  
+
+
+  /**
+   * getNextNode()
+   * @description gets the next node in the lasers path
+   * @param {Grid} grid the grid this node is part of
+   * @param {Node} node the laser node
+   * @returns the next node in the laser path
+   */
+  getNextNode(grid, node) {
+    node.width += 1;
+    console.log("expanding beam to width", node.width);
+    let nextPoint = grid.getNextSlot(node.point, node.direction);
+    let nextDirection = this.getNextDirections(node.direction)[0];
+    if(grid.pointInGrid(nextPoint) && nextDirection !== Direction.Stop) {
+      return {
+        ...node,
+        direction: nextDirection,
+        point: nextPoint,
+        width: node.width,
+        children: []
+      }
+    } else {
+      return null;
+    }
+    
+  }
+
+  /**
+   * getNextDirection()
+   * @description gets the direction that comes after this one in the laser path.
+   * @param {direction} direction the current direction of the laser  
+   * @returns the new direction of the laser
+   */
+  getNextDirections(direction) {
+
+    while(this._rotation < 0) this._rotation += 360;
+
+    const directionMap = {
+        0: { [Direction.Right]: Direction.Right },
+        90: { [Direction.Down]: Direction.Down },
+        180: { [Direction.Left]: Direction.Left },
+        270: { [Direction.Up]: Direction.Up }
+    };
+
+    return [directionMap[(this._rotation % 360)][direction] || Direction.Stop];
+  }
+
+  /**
+   * clone()
+   * @description clones the BeamExpander
+   * @returns {BeamExpander} a clone of the BeamExpander
+   */
+  clone() {
+    let newBeamExpander = new BeamExpander(this._position);
+    return newBeamExpander;
   }
 
   
