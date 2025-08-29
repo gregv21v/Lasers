@@ -42,12 +42,12 @@ class GridManager {
 
         
         if(slot)
-            if(!this._player.hand && !slot.isFixed) {
+            if(!this._player.hand && !slot.isFixed && slot.item.canPickUp) {
                 this._player.hand = slot.item;
                 this._player.hand.pickUp();
                 slot.removeItem();
             } else if(slot.isEmpty()) {
-                slot.addItem(this._player.hand)
+                gridOfSlot.addItemToSlot(slot, this._player.hand);
                 gridOfSlot.updateSlot(slot.coordinate);
                 this._player.hand = null;
             }

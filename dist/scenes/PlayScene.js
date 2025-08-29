@@ -6,9 +6,9 @@ class PlayScene extends PlayableScene {
         super(game)
         let self = this;
         this._levels = [
-            new Level1(), new Level2(), new Level3(),
+            new Level9(), /*new Level2(), new Level3(),
             new Level4(), new Level5(), new Level6(),
-            new Level7()
+            new Level7(), new Level8(), /*new Level9()*/
         ];
         this._currentLevel = 0;
 

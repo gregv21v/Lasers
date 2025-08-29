@@ -7,7 +7,8 @@ class BeamSplitter extends GameObject {
      */
     constructor(position = {x: 0, y: 0}) {
       super(position);
-      this._rotation = 45; // the rotation of the BeamSplitter
+      this._rotation = 0; // the rotation of the BeamSplitter
+      this._rotationOffset = 0; // the rotation offset of the BeamSplitter
     }
 
 
@@ -68,7 +69,7 @@ class BeamSplitter extends GameObject {
      * @param {angle} angle the angle of rotation
      */
     rotate(angle) {
-      this._rotation += angle;
+      this._rotation = (angle + this._rotation) % 180;
     }
   
     /**
@@ -78,7 +79,7 @@ class BeamSplitter extends GameObject {
     render(context) {
   
       this._createPath();
-      this._applyRotation(this._rotation);
+      this._applyRotation(this._rotation + 45);
   
       
       context.beginPath();
@@ -119,7 +120,17 @@ class BeamSplitter extends GameObject {
           [Direction.Left]: Direction.Down
         }
       }
-      return [map[(this._rotation - 45) % 180][inputDirection]].concat(inputDirection)
+      return [map[(this._rotation) % 180][inputDirection]].concat(inputDirection)
+    }
+
+
+    /**
+     * get rotation
+     * @description gets the rotation of the beam splitter
+     * @returns the rotation of the beam splitter
+     */
+    get rotation() {
+      return this._rotation;
     }
 
 

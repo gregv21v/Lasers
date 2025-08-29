@@ -61,3 +61,14 @@ function translatePoints(points, translation) {
     }
     return newPoints;
 }
+
+/**
+ * lowercaseFirst()
+ * @description lowercases the first letter of a string
+ * @param {String} str the string to lowercase the first letter of
+ * @returns the string with the first letter lowercased
+ */
+function lowercaseFirst(str) {
+  if (!str) return str; // handle empty string
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}

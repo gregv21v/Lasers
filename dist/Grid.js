@@ -70,7 +70,6 @@ class Grid {
           emptySlot.addItem(slot.item);
           emptySlot.item.update(this, emptySlot.coordinate);
           slot.removeItem();
-          
         }
       }
     }
@@ -261,14 +260,15 @@ class Grid {
       if(direction === Direction.Right) {
         while(i < this._columns) {
             if(!this.getSlotAt(i, rowIndex).item) {
+                console.log(this.getSlotAt(i, rowIndex));
                 return i;
             }
             i++;
         }
       } else {
         while(i >= 0) {
-            console.log(i);
             if(!this.getSlotAt(i, rowIndex).item) {
+                console.log(this.getSlotAt(i, rowIndex));
                 return i;
             }
             i--;
@@ -468,6 +468,8 @@ class Grid {
       // if a change is detected,
       this._previousLaserMatrix = this._currentLaserMatrix;
       this._currentLaserMatrix = new Matrix(this._rows, this._columns);
+
+      this._previousLaserWidthMatrix = this._laserWidthMatrix;
       this._laserWidthMatrix = new Matrix(this._rows, this._columns);
 
 
@@ -480,11 +482,12 @@ class Grid {
       }
 
       let xorMatrix = this._currentLaserMatrix.xorWith(this._previousLaserMatrix);
+      let xorMatrixWidths = this._laserWidthMatrix.xorWith(this._previousLaserWidthMatrix);
       
       for (var x = 0; x < this._columns; x++) {
         for (var y = 0; y < this._rows; y++) {
           if(this._slots[x][y].item) {
-            if(xorMatrix.getAt(x, y)) { // if a cell has changed state
+            if(xorMatrix.getAt(x, y) || xorMatrixWidths.getAt(x, y)) { // if a cell has changed state
               this._slots[x][y].item.stateChanged = true; 
               this._slots[x][y].item.toggle();
             } else { // a cell stayed the same
@@ -505,7 +508,7 @@ class Grid {
       for (var x = 0; x < this._columns; x++) {
         for (var y = 0; y < this._rows; y++) {
           if(this._slots[x][y].item)
-            if(this._slots[x][y].item.stateChanged)
+            if(this._slots[x][y].item.stateChanged || this._slots[x][y].item.isTimed)
               this._slots[x][y].item.update(this, {x, y});
         }
       }
@@ -848,7 +851,7 @@ class Grid {
       @param item the item to add
     */
     addItemToSlot(slot, item) {
-      slot.addItem(item, this._svg.layers);
+      slot.addItem(item);
     }
   
     /**
@@ -974,6 +977,19 @@ class Grid {
         return this._laserWidthMatrix.getAt(x, y);
       } else {
         return 0;
+      }
+    }
+
+    
+
+    addToCoder(coder, isToolbar) {
+      for (var x = 0; x < this._columns; x++) {
+        for (var y = 0; y < this._rows; y++) {
+          let slot = this._slots[x][y];
+          if(slot.item) {
+            coder.addObject(slot.item.constructor.name, {x, y}, slot.item.rotation, isToolbar);
+          }
+        }
       }
     }
   }

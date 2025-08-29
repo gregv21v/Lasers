@@ -52,19 +52,17 @@ class Slot {
       context.strokeStyle = "black";
       context.strokeRect(this._position.x, this._position.y, Slot.Size, Slot.Size);
 
+      
       context.fillTextAlign = "center";
       context.fillTextBaseline = "middle";
       context.fillStyle = "black";
       context.font = "12px Arial";
       context.fillText(
-        this._grid.getCellState(this._coordinate.x, this._coordinate.y),
-        this._position.x + Slot.Size - 10,
-        this._position.y + Slot.Size - 10
+        (this._item) ? this._item.constructor.name : "Empty",
+        this._position.x + Slot.Size / 2 - 10,
+        this._position.y + Slot.Size / 2
       );
-
-
-      //if(this._item)
-        //this._item.render(context);
+      
 
     }
   

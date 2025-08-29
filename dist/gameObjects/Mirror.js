@@ -121,8 +121,6 @@ class Mirror extends GameObject {
 
     while(this._rotation < 0) this._rotation += 360;
 
-    console.log(direction);
-
     const directionMap = {
         0: { 
           [Direction.Right]: Direction.Down,

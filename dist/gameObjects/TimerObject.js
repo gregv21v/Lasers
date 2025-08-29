@@ -7,7 +7,7 @@ class TimerObject extends GameObject {
     */
     constructor(position = {x: 0, y: 0}) {
       super(position);
-
+      
       this._activated = false;
       this._requiredLaserSize = 1;
       this._currentTime = 0;
@@ -103,6 +103,8 @@ class TimerObject extends GameObject {
 
 
     update(grid, pointer) {
+      console.log("update timer");
+      
       this._needsUpdate = false;
       this._currentTime++;
       if(this._currentTime > this._endTime) {
@@ -148,5 +150,16 @@ class TimerObject extends GameObject {
     get requiredLaserSize() {
       return this._requiredLaserSize;
     }
+
+
+    /**
+     * get isTimed()
+     * @description gets whether this is a timed object
+     * @return {boolean} true if this is a timed object, false otherwise
+     */
+    get isTimed() {
+      return true;
+    }
+   
   }
   

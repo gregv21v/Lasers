@@ -10,17 +10,19 @@ class PlayableScene extends Scene {
         super(game)
         this._levels = [];
         this._currentLevel = 0;
+        this._rows = 10;
+        this._columns = 20;
 
         this._gridPosition = {
-            x: game.width / 2 - (10 * Slot.Size) / 2,
-            y: game.height / 2 - (10 * Slot.Size) / 2 - Slot.Size
+            x: game.width / 2 - (this._columns * Slot.Size) / 2,
+            y: game.height / 2 - (this._rows * Slot.Size) / 2 - Slot.Size
         }
         this._toolbarPosition  = {
             x: game.width / 2 - (10 * Slot.Size) / 2,
             y: game.height / 2 + (10 * Slot.Size) / 2
         }
 
-        this._grid = new Grid(this._gridPosition, this._game.player, this._manager, 10, 10);
+        this._grid = new Grid(this._gridPosition, this._game.player, this._manager, this._rows, this._columns);
         
         this._gridManager = new GridManager(this._game);
         this._gridManager.addGrid(this._grid);

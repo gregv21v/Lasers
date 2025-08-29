@@ -14,6 +14,8 @@ class GameObject {
     this._activated = false;
     this._stateChanged = false;
     this._rotation = 0;
+    this._canPickUp = true;
+    this._rotationOffset = 0;
   }
 
   
@@ -116,7 +118,7 @@ class GameObject {
    * @param {angle} angle the angle to rotate by
    */
   _applyRotation(angle) {
-    this._rotation = angle;
+    //this._rotation = angle;
     this._path = rotatePoints(this._path, angle, {
       x: this._position.x + GameObject.Size / 2,
       y: this._position.y + GameObject.Size / 2
@@ -242,6 +244,34 @@ class GameObject {
     this._stateChanged = value;
   }
 
+  get rotation() {
+    return this._rotation;  
+  }
+
+
+  /**
+   * get isTimed()
+   * @description gets whether this is a timed object
+   * @return {boolean} true if this is a timed object, false otherwise
+   */
+  get isTimed() {
+    return false;
+  }
+
+
+  set canPickUp(value) {
+    this._canPickUp = value;
+  }
+
+  get canPickUp() {
+    return this._canPickUp;
+  }
+
+
+  get rotationOffset() {
+    return this._rotationOffset; 
+  }
+
 
   /**
    * clone()
@@ -253,4 +283,8 @@ class GameObject {
     clone._rotation = this._rotation
     return clone
   }
+
+
+
+
 }

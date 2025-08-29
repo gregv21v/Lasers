@@ -191,5 +191,14 @@ class Delay extends GameObject {
     get requiredLaserSize() {
       return this._requiredLaserSize;
     }
+
+    /**
+     * get isTimed()
+     * @description gets whether this is a timed object
+     * @return {boolean} true if this is a timed object, false otherwise
+     */
+    get isTimed() {
+      return true;
+    }
   }
   
